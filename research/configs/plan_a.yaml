@@ -1,0 +1,11 @@
+# Plan A (after the mid eval): 3 seeds, LOSO on T+E, all 5 ablations. Same P0 model.
+name: plana-p0
+label: "Plan A: 3 seeds"
+seeds: [0, 1, 2]
+features: {variant: paper, log10: false}
+graph: {tau: 0.3, eta: 0.5}
+model: {dropout: 0.5, residual: false, gcn_edge_weight: true, evolve: true}
+train: {lr: 0.01, momentum: 0.0, weight_decay: 0.001, batch_size: 64, epochs: 500}
+deploy: {subject: 1}
+loso: {train_sessions: [T, E]}
+ablations: [plv_gat, sfe_gcn, fe_gat, r_gat, r_sfe_gat]

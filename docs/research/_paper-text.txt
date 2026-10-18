@@ -1,0 +1,1221 @@
+Article
+
+SFE-GAT: Structure-Feature Evolution Graph Attention Network
+for Motor Imagery Decoding
+
+Xin Gao 1 , Guohua Cao 1,2,* and Guoqing Ma 1
+
+                                                 1 School of Mechatronic Engineering, Changchun University of Science and Technology,
+                                                      Changchun 130022, China
+
+                                                 2 Chongqing Research Institute, Changchun University of Science and Technology, Chongqing 401133, China
+                                                 * Correspondence: cghcust@163.com
+
+                                       Abstract
+
+                                       Motor imagery EEG decoding often relies on static functional connectivity graphs that
+                                       cannot capture the dynamic, stage-wise reorganization of brain networks during tasks. This
+                                       paper aims to develop a graph neural network that explicitly simulates this neurodynamic
+                                       process to improve decoding and provide computational insights. This paper proposes a
+                                       Structure-Feature Evolution Graph Attention Network (SFE-GAT). Its inter-layer evolution
+                                       mechanism dynamically co-adapts graph topology and node features, mimicking functional
+                                       network reorganization. Initialized with phase-locking value connectivity and spectral
+                                       features, the model uses a graph autoencoder with Monte Carlo sampling to iteratively
+                                       refine edges and embeddings. On the BCI Competition IV-2a dataset, SFE-GAT achieved
+                                       77.70% (subject-dependent) and 66.59% (subject-independent) accuracy, outperforming
+                                       baselines. Evolved graphs showed sparsification and strengthening of task-critical con-
+                                       nections, indicating hierarchical processing. This paper advances EEG decoding through
+                                       a dynamic graph architecture, providing a computational framework for studying the
+                                       hierarchical organization of motor cortex activity and linking adaptive graph learning with
+                                       neural dynamics.
+
+                                       Keywords: motor imagery EEG; graph neural network; brain network dynamics;
+                                       functional connectivity
+
+Academic Editor: Alessandro Leone       1. Introduction
+
+Received: 10 January 2026                     Brain-Computer Interfaces (BCIs) enable direct interaction between the brain and
+Revised: 1 March 2026                   external devices by decoding signals such as electroencephalography (EEG) [1]. Among BCI
+Accepted: 8 March 2026                  paradigms, motor imagery (MI) is particularly attractive for rehabilitation and control
+Published: 9 March 2026                 applications because it elicits task-specific EEG patterns without overt movement [2,3].
+Copyright: © 2026 by the authors.       However, MI-EEG decoding remains challenging due to the signals' low signal-to-noise
+Licensee MDPI, Basel, Switzerland.      ratio, pronounced intersubject variability, nonstationarity, and the distributed nature of
+This article is an open access article  task-relevant information across dynamically interacting brain regions [4-6]. Accordingly,
+distributed under the terms and         effectively leveraging the spatial-topological structure of multichannel EEG is critical for
+conditions of the Creative Commons      improving decoding performance [7,8].
+Attribution (CC BY) license.
+                                              In recent years, graph neural networks (GNNs) have shown substantial promise for
+                                        this task. By representing multichannel EEG as functional brain connectivity graphs, GNNs
+                                        directly model inter-regional coordination patterns, providing a principled route to accurate
+                                        MI intent recognition [9-12].
+
+Sensors 2026, 26, 1730                  https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                              2 of 19
+
+                              A wide range of GNN-based methods for MI-EEG decoding has been explored [13,14].
+                        Some construct static connectivity graphs using neuroanatomical priors or measures such as
+                        the phase-locking value (PLV) [9,10]. Others learn the graph structure to reduce reliance on
+                        fixed priors [15,16]. Despite increased flexibility, the learned graphs are typically global or
+                        fixed at the input layer, rather than evolving through the feature-extraction hierarchy [17].
+                        In effect, these approaches still assume a static or quasi-static topology that is shared
+                        across GNN layers [18]. Neuroscientific studies indicate that motor imagery entails a
+                        dynamic, hierarchical reconfiguration of functional brain connectivity, progressing from
+                        localized sensorimotor regions to globally integrated networks [19]. However, existing
+                        GNN approaches based on static graphs are limited in their ability to capture the depth-
+                        dependent evolution of functional topology across stages of cognitive processing, which
+                        can constrain decoding performance [20,21].
+
+                              Therefore, this study proposes a dynamic graph neural network with a layerwise
+                        graph evolution mechanism, termed SFE-GAT. The mechanism is designed to simulate
+                        dynamic adjustments of functional brain connections during task execution. These ad-
+                        justments are modeled as a function of the processing stage determined by the network
+                        hierarchy. Shallow layers are expected to capture local and stable connectivity patterns.
+                        Deep layers are expected to evolve global and abstract connectivity patterns relevant to
+                        task decision making.
+
+                              This model does not treat the functional brain connectivity graph as fixed but rather
+                        as an entity that can evolve dynamically across network layers. Specifically, within each
+                        graph attention layer, the model alternately optimizes node features and graph topology:
+                        it employs a Graph Attention Network to aggregate node information while simulta-
+                        neously using a lightweight Graph Autoencoder to dynamically update the inter-layer
+                        adjacency relationships based on the feature representations learned at the current layer.
+                        This co-evolution process enables the model to adaptively learn functional connectivity
+                        patterns at different abstraction levels for shallow and deep layers, thereby more accurately
+                        characterizing the dynamic brain activity underlying MI tasks [22,23].
+
+                              The contributions of this study are threefold:
+                              We introduce a inter-layer graph-evolution mechanism based on dynamic graph struc-
+                        ture learning for MI-EEG decoding. This mechanism removes dependence on predefined
+                        static graphs and enables joint adaptation of graph topology and node representations
+                        across layers.
+                              We develop a compact architecture that integrates a Graph Attention Network with a
+                        Graph Autoencoder. Through a differentiable sampling strategy, it dynamically updates
+                        the inter-layer graph structure, improving representational capacity while keeping the
+                        parameter budget comparable to conventional GNNs that use static graphs.
+                              Extensive experiments on the BCI Competition IV-2a dataset show that SFE-GAT
+                        outperforms a range of baseline models in subject-dependent and subject-independent
+                        settings, demonstrating its effectiveness. Visual analyses of the learned graphs further offer
+                        insight into motor-imagery-related brain dynamics.
+
+                        2. Materials and Methods
+
+                              The framework of the proposed SFE-GAT, illustrated in Figure 1, comprises three core
+                        modules: graph construction, graph evolution, and a classifier. The graph construction
+                        module first defines inter-node connectivity based on the Phase-Locking Value (PLV) and
+                        defines spectral band Power Spectral Density (PSD) as node features, thereby transforming
+                        the raw MI-EEG signals into graph-structured data. Subsequently, the graph evolution
+                        module dynamically updates the graph topology through iterative operations involving
+                        graph attention, batch normalization, and graph autoencoding. Finally, the classifier
+
+                                                                                                                             https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                           3 of 19
+
+                        decodes the evolved node features and accomplishes motor imagery task recognition using
+                        a fully connected layer followed by a softmax classifier.
+
+                              The three core blocks of the SFE-GAT are elaborated in detail in the following sub-
+                        sections. The graph construction block transforms raw EEG-MI time-series signals into
+                        graph-structured data.
+
+                                                      Graph Construction Block          Features                               Classifier
+                                                                                          Nodes
+                                                      Adjacency  Edge features
+                                                         matrix
+
+                                            PLV Matrix                                                                                          Average  Softmax
+
+                                          Fz C3 PSD              Node features                          Edges                  Batch Norm
+                                          Pz 8 22                               Graph structure                                   + ReLU
+                                                                                                               GAT
+                                               Filter bank
+
+                        EEG signal                    A          Graph Evolution Block                                               xn
+                                     GAT                                    GCN
+                                                                                                                               A^
+
+                                                                                                                                           left right
+
+                                                                                Z (ZiTZ j)
+
+                                          Batch Norm
+
+                                          + ReLU      H          Encoder                Decoder                  Monte Carlo   H                         feet
+                                                                                                               Edge Generator
+                                                                                GAE
+
+                                                                                                                                                         tongue
+
+                        Figure 1. The SFE-GAT framework primarily involves three steps: constructing the initial graph
+                        structure and node features using PLV and PSD; evolving the graph topology and features based on
+                        GAT and GAE; and producing the final output via the classifier.
+
+                        2.1. Graph Construction Block
+
+                              The graph construction module aims to transform raw neural signal data into a
+                        graph structure, providing the foundation for subsequent graph neural network modeling.
+                        The Phase-Locking Value (PLV) is employed to compute the functional connectivity be-
+                        tween nodes (electrodes), thereby analyzing the brain's functional networks. PLV measures
+                        the phase synchronization between two signals by assessing whether their phase difference
+                        remains relatively constant over time, reflecting the degree of temporal phase locking [24].
+                        PLV is sensitive to instantaneous phase changes in EEG signals and can provide information
+                        about the coupling between different brain regions [25].
+
+                              To compute the PLV, the instantaneous phase i(t) is first extracted for each electrode's
+                        signal via the Hilbert transform. For any electrode pair (i, j), the instantaneous phase
+                        difference is ij(t) = i(t) - j(t). The PLV is then calculated as the magnitude of the
+                        average of the unit complex vectors corresponding to this phase difference over time:
+
+                                                                                1T
+                                                                 PLVij =  eiij(t)                                                                                 (1)
+                                                                                T t=1
+
+                        where T is the total number of time points, and eiij(t) is the unit vector representa-
+                        tion of the phase difference ij(t) in the complex plane. The value of PLV ranges be-
+                        tween [0, 1], with values closer to 1 indicating stronger phase synchronization between
+
+                        electrodes i and j.
+                              Based on the computed Phase-Locking Value matrix PLV  RC×C (where C is the
+
+                        number of electrodes), the final adjacency matrix A, which defines the edge connections of
+
+                        the graph structure, is constructed through the following sequential steps.
+
+                                                                                                               https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                   4 of 19
+
+                              First, to eliminate global scale variations, the original PLV matrix is standardized.
+                        Specifically, the mean µ and standard deviation  of all elements in the matrix are calculated
+                        as follows:
+
+                                                1CC
+
+                                         µ = 2   PLVij
+
+                                               C i=1 j=1
+
+                                            1CC                                          (2)
+
+                                         =  2          PLV        -  µ  2
+
+                                            C i=1 j=1         ij
+
+                        Each element is then standardized using the following equation:
+
+                                                                       PLVij = Pij - µ  +  (3)
+
+                        where  is a small constant used to ensure numerical stability. We set  = 1 × 10-8 to ensure
+                        numerical stability, following common practices in z-score standardization to prevent
+                        division by near-zero standard deviation.
+
+                              Next, to prevent self-connections in the graph structure, the diagonal elements of the
+                        standardized matrix PLV are set to zero:
+
+                                         PLVii = 0, i  [1, C]                            (4)
+
+                        Finally, to construct a sparse adjacency matrix that retains only significant functional
+
+                        connections, a threshold  is applied for filtering. An edge is retained only if the standard-
+
+                        ized value PLVij is greater than , resulting in the final adjacency matrix A, whose elements
+
+                        are defined as:     
+                                          A PLV ij = ij, if PLVij >  (5)
+                                            0,         otherwise
+
+                              To construct a complete graph-structured dataset, this module further generates a
+                        feature representation for each node (electrode), building upon the defined edge connec-
+                        tions (adjacency matrix). The node features are derived from the power spectral density
+                        (PSD) of specific frequency bands to capture rhythm activities associated with motor
+                        imagery tasks [26].
+
+                              Specifically, the EEG signal x(t)from each electrode is first bandpass-filtered within the
+                        [8, 40] Hz range using a 4 Hz step size, yielding a series of sub-band signals:
+
+                                         xk(t) = Bandpass(x(t), f klow, f khigh)         (6)
+
+                              The 4 Hz step size is chosen following established filter-bank approaches in mo-
+                        tor imagery EEG decoding, such as the Filter Bank Common Spatial Pattern (FBCSP)
+                        method [27,28], which balances spectral resolution and computational efficiency while
+                        capturing fine-grained differences in the µ (8-12 Hz) and  (13-30 Hz) sub-bands relevant to
+                        MI tasks. Bandpass filtering was performed using zero-phase 4th-order Butterworth filters
+                        (scipy.signal implementation) with passband ripple Rp = 0.5 dB and stopband attenuation
+                        Rs = 40 dB. The transition bandwidth is approximately determined by the filter order and
+                        the 250 Hz sampling rate.
+
+                                                                           https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                          5 of 19
+
+                              For each filtered signal xk(t), its power spectral density PSDk( f ), representing the
+                        signal's power distribution at frequency f , is estimated using Welch's method:
+
+                                     PSDk( f ) = 1  xk(t)e-i2 f t     T    2
+
+                                                                    T t=1                       (7)
+
+                              Here, T denotes the signal duration, f represents frequency, and xk(t) is the bandpass-
+                        filtered signal. Welch's PSD was estimated with 1-second segments (T = 250 samples) using
+                        50% overlap and a Hann window to balance frequency resolution and adherence to local
+                        stationarity in MI-EEG signals. The total power within the sub-band is then computed as
+                        the feature value via integration:
+
+                                     band                           fk
+
+                                                                     high
+                                     f PSDk = k PSDk( f ) d f (8)
+                                                                    low
+
+                            This process is repeated for all B sub-bands, generating a feature vector
+
+                        hi  =  [PSDband, PSDband, . . . , PSDband]12B RB for each electrode i.  Finally, the fea-
+
+                        ture vectors from all electrodes are stacked to form the global node feature matrix
+
+                        H = [h1, h2, . . . , hC]  RC×B, where C is the number of electrodes.
+
+                            At this stage, the graph-structured data G = (V, E, H) is fully constructed: the node
+
+                        set V corresponds to the electrodes, the edge set E and its weights are defined by the
+
+                        aforementioned adjacency matrix A, which is based on the PLV, and the node features are
+
+                        provided by the frequency band power matrix H. This graph structure serves as the input
+
+                        for the subsequent graph evolution block.
+
+                        2.2. Graph Evolution Block
+
+                              The graph evolution block constitutes the core of this study, aiming to dynamically
+                        adjust the graph structure to achieve the co-optimization of node and edge relationships.
+                        The block adopts a multilayer architecture that alternates Graph Attention Network (GAT)
+                        and Graph Autoencoder (GAE) modules, enabling iterative updates of node features and
+                        graph topology across layers [29,30].
+
+                              Specifically, we first apply GATv2 to aggregate neighborhood information from node
+                        features. GATv2 employs a dynamic attention mechanism that better captures complex
+                        inter-node dependencies [31]. It computes the attention coefficient ij between node i and
+                        each neighbor j  N (i). This computation involves two steps: first, calculating the attention
+                        energy score for a node pair; second, normalizing this score. The detailed procedure is
+                        as follows.
+
+                              First, the attention energy score eij for the node pair (i, j) is calculated:
+
+                                     eij = LeakyReLU a[Whi  Whj]                                (9)
+
+                              Here, W is a learnable weight matrix, a is the parameter vector of the attention
+                        mechanism, and  denotes the vector concatenation operation. Subsequently, the Softmax
+                        function is applied to normalize the energy scores over the neighbor nodes j, yielding the
+                        final attention coefficient:
+
+                                                                   ij = exp(eij) (10)
+                                                                          kN (i) exp(eik)
+
+                                                                              https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                6 of 19
+
+                        After obtaining the attention coefficients, the updated feature representation for node
+
+                        i is generated by performing a weighted aggregation of its neighbors' features, followed by
+
+                        a linear transformation and a nonlinear activation function:
+
+                                                                    
+
+                                           hi = W  ijhj                               (11)
+
+                                                       jN (i)
+
+                              After applying the above operation to all nodes in the graph, a new node feature
+                        matrix processed by one graph attention layer is obtained. The overall computation can be
+                        succinctly expressed as:
+
+                                                             Hgat (evo) = ReLU(GATv2(H, A)) (12)
+
+                              To enhance the stability and convergence efficiency of the training process, batch
+                        normalization is applied after the graph attention layer. Batch normalization stabilizes
+                        the distribution of activations for each feature dimension. This primarily smooths the
+                        optimization landscape of the loss function, resulting in more stable gradients, permitting
+                        the use of larger learning rates, and thereby significantly improving convergence speed
+                        and training stability [32,33]. It is computed as follows:
+
+                                           bn          h:,j - µj    + j
+                                           h:,j = j ·                                 (13)
+                                                       j
+
+                              Here, h:,j denotes the vector of all samples (in the batch) for the j-th feature dimension,
+                        while µj and j are the mean and standard deviation computed from the current mini-batch
+                        data for that feature dimension. j and j are learnable scaling and shift parameters that
+                        preserve the model's expressive power. The node feature matrix after batch normalization
+                        is denoted as:
+
+                                                               Hbn (evo) = BatchNorm(Hgat (evo)) (14)
+
+                              Subsequently, the model utilizes a Graph Autoencoder (GAE) for graph structure
+                        reconstruction and representation learning. As an unsupervised learning model, the GAE
+                        aims to learn a low-dimensional, dense representation of the graph through an encoder-
+                        decoder framework [34]. Specifically, the encoder consists of a Graph Convolutional
+                        Network (GCN) layer that maps the normalized node features Hbn to a low-dimensional
+                        latent space representation Zenc:
+
+                                           Zenc = ReLU GCNConv(Hbn (evo), A) (15)
+
+                        The decoder then reconstructs the adjacency matrix via the inner product of the
+
+                        node latent representations Zenc. Specifically, the probability of a connection between
+
+                        node i and node j is given by the inner product of their feature vectors activated by the
+
+                        Sigmoid function:
+
+                                               PA^ (i, j) = (zizj)                    (16)
+
+                        where (·) is the Sigmoid function, mapping the inner product value to a probability
+                        within the [0,1] interval. This encoder-decoder framework drives the model to learn
+                        low-dimensional node representations that encapsulate the graph's latent structure by
+                        reconstructing the graph topology.
+
+                              To achieve adaptive adjustment of the graph structure during both training and evalu-
+                        ation phases, the model employs differentiated edge generation strategies. The mechanism
+                        generates a binary mask matrix M from the edge-probability matrix PA^ produced by the
+
+                                                                                      https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                    7 of 19
+
+                        graph autoencoder. The mask is then used to sparsify the original adjacency matrix, yield-
+                        ing the updated adjacency matrix A^ = A  M, where  denotes the Hadamard product.
+
+                        During training, stochasticity is introduced to enhance robustness and mitigate over-
+
+                        fitting. Specifically, Monte Carlo sampling is implemented by comparing the edge probabil-
+
+                        ities with an i.i.d. uniform random matrix R  U(0, 1) of matching dimensions, thereby
+
+                        generating a dynamic mask:
+
+                                                    M = I(PA^ > R)        (17)
+
+                        This operation is equivalent to independently sampling each edge with probability
+
+                        PA^ (i, j), thereby inducing slight variations in the graph topology across training iterations
+                        and improving generalization.
+
+                        In contrast, during evaluation, a deterministic strategy is adopted to ensure stable
+
+                        and reproducible performance assessment. The mask matrix is generated using a fixed
+
+                        threshold :
+
+                                                    M = I(PA^ > ø)        (18)
+
+                              This procedure ensures a deterministic graph structure during evaluation, thereby
+                        facilitating fair and reliable comparisons of model performance. This completes one cycle
+                        of co-update for the graph structure and node features within a single graph evolution
+                        block, which can be abstracted as the function:
+
+                                     H, A = GraphEvolutionLayer(H, A)     (19)
+
+                              By stacking L = 3 such blocks, the model can capture hierarchical dynamic func-
+                        tional connectivity patterns, ultimately providing the classifier with the evolved high-level
+                        representations Hevolved and Aevolved.
+
+                        2.3. Classifier
+                              The classifier aims to generate the final classification predictions based on the evolved
+
+                        graph structure Aevolved and node features Hevolved. First, a Graph Attention Network
+                        (GATv2) layer is applied to perform a final round of information aggregation on the node
+                        features, fully leveraging the information from the evolved graph structure:
+
+                                                           Hgat (cls) = GATv2(Hevolved, Aevolved) (20)
+
+                              Subsequently, batch normalization is applied to the aggregated features to stabilize
+                        the training process and accelerate convergence:
+
+                                                    Hbn (cls) = BatchNorm(Hgat (cls)) (21)
+
+                              The result is denoted as the node feature representation used by the classifier:
+                        Hcls = Hbn (cls). Global Mean Pooling is then employed to aggregate the node-level feature
+                        matrix Hcls  RC×D into a graph-level representation vector hgraph  RD:
+
+                                                    1C
+                                                    hgraph =  Hcls[i, :]  (22)
+                                                    C i=1
+
+                        where C is the number of nodes (electrodes). To enhance the model's generalization
+                        capability, a Dropout layer with a rate of p = 0.5 is applied for regularization after pooling:
+
+                                     hdrop = Dropout(hgraph, p = 0.5)     (23)
+
+                                                                          https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                  8 of 19
+
+                              Finally, a fully connected layer maps the graph-level representation to the class space,
+                        and the Softmax function outputs a normalized categorical probability distribution:
+
+                                                                 y^ = Softmax(Wfchdrop + bfc)                                                  (24)
+
+                        Here, Wfc and bfc are the weight matrix and bias vector of the fully connected layer.
+
+                        3. Experiments and Results
+
+                        3.1. Dataset and Processing
+
+                              This study evaluates the proposed model on the publicly available BCI Competition
+                        IV-2a dataset [35].
+
+                              The dataset contains electroencephalogram (EEG) signals recorded from nine subjects
+                        performing four-class motor imagery tasks (left hand, right hand, both feet, and tongue).
+                        The data were recorded using 22 electrodes (arranged according to the International
+                        10-20 system, see Figure 2a) at a sampling rate of 250 Hz, and were preprocessed with a
+                        0.5-100 Hz bandpass filter followed by a 50 Hz notch filter.
+
+                              The data for each subject comprises two sessions recorded on separate days, with each
+                        session containing 288 trials (i.e., 72 trials per class). The detailed timing scheme of a
+                        single trial, including the cue, preparation, task execution, and rest periods, is illustrated
+                        in Figure 2b. For subsequent analysis, EEG signals from all 22 channels during the task
+                        execution period (t = 2 s to t = 6 s) were extracted. No additional preprocessing, such as
+                        artifact removal, was applied to validate the model's robustness on raw data. The data split
+                        follows the dataset's predefined scheme, where the first session is used for model training
+                        and the second session for testing.
+
+                                                             1   Beep
+
+                                                Fz                                                 Cue     Motor imagery      Break
+                                                                    Fixation cross
+                                           23456
+                                                                 0     1  2                             3  4  5           6   7      8  t (s)
+                                   7 8 9 10 11 12 13
+                                                                                                           (b) Timing scheme
+                                     C3 Cz C4
+
+                                          14 15 16 17 18
+
+                                                   19 20 21
+
+                                                Pz
+
+                                                             22
+
+                        (a) Electrode montage
+
+                        Figure 2. Description of the BCI Competition IV-2a dataset. (a) Electrode montage corresponding to
+                        the International 10-20 system. (b) Timing scheme of the experimental paradigm.
+
+                        3.2. Performance Metrics
+
+                              To comprehensively evaluate the proposed model, this study employs multiple metrics,
+                        including accuracy, precision, the F1-score, and the Kappa value.
+
+                                                                       ACC = in=1 TPi/Ii (25)
+                                                                                         n
+
+                                                                             1 n TPi
+                                                                 Precision =                                                                   (26)
+                                                                             n i=1 TPi + FPi
+
+                                                                    1 n 2 × Precisioni × Recalli
+                                                                 F1 =                                                                          (27)
+                                                                    n i=1 Precisioni + Recalli
+
+                                                                       Kappa = Po - Pe (28)
+                                                                                    1 - Pe
+
+                                                                                                                          https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                           9 of 19
+
+                              Here, for class i: TPi is the number of correctly predicted samples, FPi is the number of
+                        false positives, and FNi is the number of false negatives. Ii is the total number of samples,
+                        and n denotes the number of classes. Additionally, Po represents the observed agreement,
+                        and Pe represents the expected agreement. Precisioni and Recalli denote the precision and
+                        recall for class i.
+
+                        3.3. Experiment Setup
+
+                              All experiments were conducted on a workstation equipped with an Intel(R) Xeon(R)
+                        Platinum 8358P CPU (2.60 GHz) and an NVIDIA GeForce RTX 3090 GPU. The operating
+                        system was Ubuntu 22.04, with CUDA version 12.4, Python version 3.10.16, and the deep
+                        learning frameworks PyTorch 2.7.0 and PyTorch Geometric 2.6.1. The proposed model
+                        contains approximately 0.15M trainable parameters.
+
+                              The model was evaluated under both subject-dependent and subject-independent
+                        paradigms. In the subject-dependent paradigm, adhering to the original competition's
+                        split, a session-level holdout method was employed: the 288 trials × 9 subjects from
+                        the first session were used as the training set, and the 288 trials × 9 subjects from the
+                        second session constituted the test set. The training and testing data were non-overlapping,
+                        and cross-validation was not performed. In the subject-independent paradigm, a leave-one-
+                        subject-out (LOSO) cross-validation was used for cross-subject evaluation. The number
+                        of folds equaled the number of subjects; in each fold, one subject was selected as the test
+                        set, while the remaining subjects were used for training, thereby assessing the model's
+                        generalization capability on unseen subjects.
+
+                              Furthermore, the parameter settings for the proposed model framework are detailed
+                        in Table 1. The model was trained using a Stochastic Gradient Descent (SGD) optimizer
+                        with a learning rate of 0.01, a batch size of 64, and a weight decay of 0.001. The loss
+                        function was categorical cross-entropy, and training proceeded for 500 epochs. These
+                        hyperparameters were selected based on preliminary experiments to balance convergence
+                        stability and generalization performance.
+
+                        Table 1. Model architecture and parameters.
+
+Blocks                        Layers    Input Channels  Hidden Channels  Output Channels  Heads  Parameters
+GraphEvoBlock-1
+GraphEvoBlock-2           GATv2Conv               8               32              128        4       2560
+GraphEvoBlock-3
+Classifier                GATv2Conv             128               32              128        4      33,280
+                           BatchNorm            128              128              128        -        256
+                                                128               32               32        -       4192
+                                GAE                                                          -          -
+                          MC-EdgeGen              -                -                -
+                                                                                             4      33,280
+                          GATv2Conv             128               32              128        -        256
+                           BatchNorm            128              128              128        -       4192
+                                                128               32               32        -          -
+                                GAE
+                          MC-EdgeGen              -                -                -        4      33,280
+                                                                                             -        256
+                          GATv2Conv             128               32              128        -       4192
+                           BatchNorm            128              128              128        -          -
+                                                128               32               32
+                                GAE                                                          4      33,280
+                          MC-EdgeGen              -                -                -        -        256
+                                                                                             -          -
+                          GATv2Conv             128               32              128        -          -
+                           BatchNorm            128              128              128        -        516
+                        GlobalMeanPool          128                               128
+                                                128                -              128
+                             Dropout            128                -                4
+                              Linear                               4
+
+                        3.4. Experimental Results
+
+                              Figure 3 presents the overall performance of the proposed model under both subject-
+                        dependent (SD) and subject-independent (SI) evaluation paradigms. The model demon-
+                        strates strong performance across multiple evaluation metrics. Specifically, under the SD
+
+                                                                         https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        10 of 19
+
+                        paradigm (see Figure 3a), significant results were achieved for all subjects except A02.
+                        Subject A03 exhibited the best performance, with accuracy, precision, F1-score, and Kappa
+                        coefficient values of 89.24%, 0.895, 0.893, and 0.856, respectively. In contrast, Subject A02
+                        showed lower performance, with corresponding values of 61.46%, 0.630, 0.620, and 0.486.
+                        The lower performance for A02 may be related to individual differences, as the literature
+                        has also reported the existence of the "BCI-illiteracy" phenomenon in some subjects [36-38].
+
+                              Under the SI paradigm (see Figure 3b), the model also performed excellently for the
+                        majority of subjects, again except for A02. Subject A08 achieved the best performance,
+                        with accuracy, precision, F1-score, and Kappa coefficient values of 79.17%, 0.794, 0.792,
+                        and 0.722, respectively. For Subject A02, the four metrics were 52.08%, 0.515, 0.517, and 0.361.
+                        These results indicate that the proposed model performs robustly under both evaluation
+                        paradigms, validating the effectiveness of its structural design and demonstrating its
+                        robustness across different evaluation settings.
+
+                                             100                                                               P r e c is io n        F 1 -s c o re                      K appa                                                                                                                                                                                                                                                             1 .0
+                                                             A c c u ra c y
+                                                                                                                                8 9 .2 4 0 .8 9 5 0 .8 9 3                                                                                                                                                                                                                                                                                  0 .9               P r e c is io n & F 1 - s c o r e & K a p p a
+                                              90                                                                                                               0 .8 5 6
+                                                                                                                                                                                                                                                                                                                                                                                                                      8 1 .9 4 0 .8 1 4 0 .8 1 6 0 . 8
+                                             80   8 0 .2 1 0 .8 1 0 0 .8 0 4                                                                                                                                                                                                                                                       8 6 .1 1 0 .8 6 4 0 .8 6 2               8 5 .0 7 0 .8 5 3 0 .8 5 1
+                                                                                                                                                                                                                                                                                                                                                                  0 .8 1 5                                  0 .8 0 1                                 0 .7 5 9
+
+                        A c c u ra c y (% )                                                          0 .7 3 6                                                                                                     7 2 .9 2 0 .7 2 9 0 .7 2 8  7 1 .8 8 0 .7 1 7 0 .7 1 5                                                                                                                                                                    0 .7
+
+                                             70                                                                                                                          7 0 .4 9 0 .7 0 9 0 .7 0 5
+
+                                                                                                                                                                                                                                                               0 .6 3 9
+                                                                                                                                                                                                                                                                                                                         0 .6 2 5
+
+                                                                                                                                                                                                     0 .6 0 6
+                                             6 0 0 . 6 6 1 . 4 6 0 . 6 3 0 0 . 6 2 0
+
+                                             50                                                                      0 .4 8 6                                                                                                                                                                                                                                                                                               0 .5
+
+                                             40                                                                                                                                                                                                                                                                                                                                                                             0 .4
+
+                                             30                                                                                                                                                                                                                                                                                                                                                                             0 .3
+
+                                             20                                                                                                                                                                                                                                                                                                                                                                             0 .2
+
+                                                  A 01                                                         A 02             A 03                                     A 04                                     A 05                        A 06                                                                                 A 07                                     A 08                                      A 09
+
+                                                                                                                                                                                                                  S u b je c ts
+
+                                                                                                                                                                                                                  (a)
+
+                                             100  A c c u ra c y                                               P r e c is io n  F 1 -s c o re                            K appa                                                                                                                                                                                                                                             1 .0
+
+                                             90                                                                                                                                                                                                                                                                                                                                                                             0 .9                               P r e c is io n & F 1 - s c o r e & K a p p a
+
+                                             80                                                                                                                                                                                                                                                                                                                             7 9 .1 7 0 .7 9 4 0 .7 9 2                                      0 .8
+                                                                                                                                                                                                                                                                                                                                                                                                            0 .7 2 2
+                        A c c u ra c y (% )  70                                                                                 7 7 .4 3 0 .7 7 5 0 .7 7 5                                                                                                                                                                         7 4 .3 1 0 .7 4 2 0 .7 3 8                                                                               0 .7
+                                                  7 0 .1 4 0 .7 0 4 0 .7 0 1                                                                                   0 .6 9 9                                                                                                                                                                                           0 .6 5 7
+                                                                                                                                                                                                                                                                                                                                                                                                                      6 6 .3 2 0 .6 6 2 0 .6 6 2
+                                             60                               0 .6 0 2                                                                                   6 7 .7 1 0 .6 7 6 0 .6 7 6
+                                                                                                                                                                                                        0 .5 6 9                                                                                                                                                                                                                            0 .6
+                                                                                                                                                                                                                                              5 6 .9 4 0 .5 6 5 0 .5 6 5
+                                                                                                                                                                                                                  5 5 .2 1 0 .5 4 9 0 .5 5 0                                                                                                                                                                                                         0 .5 5 1
+
+                                             5 0 5 2 .0 8 0 .5 1 5 0 .5 1 7                                                                                                                                                                                                                                                                                                                                                                 0 .5
+
+                                             4 0 0 .4 0 3 0 .4 2 6 0 . 4
+
+                                                                                                                     0 .3 6 1
+
+                                             30                                                                                                                                                                                                                                                                                                                                                                             0 .3
+
+                                             20                                                                                                                                                                                                                                                                                                                                                                             0 .2
+
+                                                  A 01                                                         A 02             A 03                                     A 04                                     A 05                        A 06                                                                                 A 07                                     A 08                                      A 09
+
+                                                                                                                                                                                                                  S u b je c ts
+
+                                                                                                                                                                                                                  (b)
+
+                        Figure 3. Performance of the proposed model under two learning paradigms. (a) HoldOut; (b) LOSO.
+
+                        3.5. Ablation Experiment
+
+                              This section presents an ablation study to evaluate the effectiveness of the various
+                        mechanisms within the model. Figure 4 illustrates the impact of disabling or replacing
+                        specific mechanisms in the SFE-GAT on performance for the MI classification task using
+                        the BCI-2a dataset; all modifications were applied before the commencement of training
+                        and validation. Compared to the complete model, directly removing the graph evolution
+                        module resulted in an overall accuracy drop of 12.5%. Replacing the GAT with a GCN
+                        within the model, thereby removing the attention mechanism, led to a 6.25% decrease
+                        in accuracy. Removing the edge evolution mechanism based on the GAE and Monte
+                        Carlo sampling caused a 2.43% reduction in accuracy. These results demonstrate that each
+                        mechanism in the model contributes significantly to the overall performance.
+
+                              To further examine the role of the graph evolution mechanism under unstructured
+                        initial conditions, variants with random adjacency matrix initialization were evaluated.
+                        R-GAT (random initialization without the evolution block) achieved a mean accuracy of
+                        47.8%, while R-SFE-GAT (full evolution mechanism applied from the random initialization)
+                        reached 59.5%. This corresponds to an average accuracy improvement of 11.8 percentage
+
+                                                                                                                                                                                                                                                                                                                                                                            https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                                                  11 of 19
+
+                        points when the evolution mechanism is enabled. Similar trends were observed in other
+                        metrics: Precision increased by 10.2 points (44.7% to 54.9%), F1-score by 18.7 points (38.3%
+                        to 56.9%), and Kappa by 0.225 (0.280 to 0.505).
+
+                        100                        P L V -G A T     S F E -G C N             F E -G A T              1 .0
+
+                        90                         S F E -G A T     R -G A T                 R -S F E -G A T  M ean  0 .9
+
+                        80A c c u r a c y V a lu e ( % )                                                             0 .8
+                                                                                                                                P r e c is io n & F 1 - s c o r e & K a p p a V a lu e
+                        70                                                                                           0 .7
+
+                        60                                                                                           0 .6
+
+                        50                                                                                           0 .5
+
+                        40                                                                                           0 .4
+
+                        30                                                                                           0 .3
+
+                        20                                                                                           0 .2
+
+                        10                         P r e c is io n            F 1 -s c o re                                     0 .1
+                                   A c c u ra c y                                                             K appa
+
+                        Figure 4. Ablation study results under the subject-dependent (SD) holdout paradigm. PLV-GAT
+                        denotes the model variant where the graph evolution module is removed, retaining only the PLV-
+                        based graph structure for classification with a GAT. SFE-GCN represents the variant where the
+                        graph attention mechanism is replaced with graph convolutional layers. FE-GAT indicates the
+                        variant where the edge evolution mechanism is removed, relying solely on the GAT-based feature
+                        evolution. R-GAT denotes the variant using a random adjacency matrix initialization without the
+                        graph evolution block, while R-SFE-GAT applies the full graph evolution mechanism starting from
+                        the same random initialization.
+
+                        3.6. Visualization Analysis
+
+                              To understand the feature extraction performance more deeply, this study com-
+                        pares the output features of the proposed model with the node features from the initial
+                        graph structure and illustrates the feature changes during the progressive graph evolu-
+                        tion process. t-SNE, a widely used non-linear dimensionality reduction technique, was
+                        employed to project the high-dimensional data into a two-dimensional space, enabling
+                        intuitive visualization of the data distribution and structure. Furthermore, the t-SNE re-
+                        sults were quantitatively evaluated by calculating the Silhouette Score (Sil Score) and the
+                        Davies-Bouldin Index (DBI) of the resulting clusters. Figure 5 displays the visualization
+                        results of node features at different graph evolution stages for Subject A01 from the BCI
+                        Competition IV Dataset 2a. Table 2 presents a comparison of the average Sil Score and DBI
+                        across all subjects' data at different evolution stages.
+
+                              The t-SNE visualization in Figure 5 shows the distribution of node features in a
+                        two-dimensional space across different graph evolution stages, reflecting the model's
+                        performance in feature extraction and classification. Specifically, Figure 5a shows the
+                        distribution of node features under the initial graph topology. It reveals only slight inter-
+                        class distinctions, with substantial overlap and mixing of features. Figure 5b-d illustrate
+                        the progression of node features during graph evolution, with inter-class separation among
+                        the four classes gradually increasing. By the final stage (Figure 5d), the distribution of
+                        node features exhibits greater concentration and clear inter-class separation, indicating the
+                        model's ability to extract discriminative, task-relevant features.
+
+                              The results in Table 2 align with the patterns observed in Figure 5. Relative to the
+                        initial graph, the graph-evolved model attains a higher Silhouette Score and a lower
+                        Davies-Bouldin Index, indicating improved cluster quality. This indicates that the graph
+
+                                                                                                                                                                                        https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                             12 of 19
+
+                        evolution process effectively enhances model performance by making features of different
+                        classes more separable and the clustering more distinct.
+
+                        (a) evo0           (b) evo1                                          (c) evo2          (d) evo3
+
+                        Figure 5. t-SNE visualizations of node features across stages of graph evolution for Subject A01
+                        from the BCI Competition IV-2a dataset. evo0 denotes the initial graph; evo1, evo2, and evo3 denote
+                        progressively evolved graphs.
+
+                        Table 2. Comparison Results of average Silhouette Score (Sil Score) AND Davies-Bouldin Index (DBI).
+
+                        Sil Score  evo0                                        evo1          evo2                                        evo3
+                        DBI
+                                   0.3088                                      0.3264        0.3797                                      0.3992
+                                   0.9427                                      0.8855        0.8114                                      0.7909
+
+                        3.7. Brain Network Evolution Analysis
+
+                              To further explore the mechanism of inter-layer evolution, in the holdout setting,
+                        the number of times each edge was retained in the 72 trial sessions of subject A01 was
+                        statistically analyzed, and the brain network structures before and after evolution were
+                        visually analyzed. Figure 6 shows the distribution of the occurrence times of the edges,
+                        with darker colors indicating a higher number of retentions. Before evolution (Figure 6a),
+                        the connections were more localized and dense; after evolution (Figure 6b), the graph
+                        structure was more sparse, with selection concentrated on a few long-range/inter-regional
+                        connections, and the count distributions under different conditions showed differentiated
+                        patterns, suggesting that the graph evolution block can adaptively adjust the topology to
+                        highlight class-specific connections related to the task.
+
+                                           72                                                                  72
+
+                        Left       Right                                               Left            Right
+
+                        Feet       Tongue                                      Number of EdgesFeet
+                                                                                                                                                                                 Number of Edges
+                                                                                                       Tongue
+
+                                                                            0                                                         0
+
+                                   (a)                                                       (b)
+
+                        Figure 6. Effect of graph evolution on the adjacency structure: the evolved graph becomes sparser
+                        while preserving more informative edges (shown for k = 0 and k = 3). (a) Occurrence times of the
+                        edges before evolution (k = 0); (b) Occurrence times of the edges after evolution (k = 3).
+
+                        3.8. Performance Comparison
+
+                               To further validate the performance of the proposed model, a comparative analysis
+                        was conducted against several benchmark EEG decoding methods, including EEGNet [39],
+                        DGCNN [40], FBCNet [41], EEGConformer [42], LightConvNet [43], IFNet [44], SF-TGCN [12],
+                        and MSVTNet [45]. The comparative results in both paradigms are presented in Table 3.
+
+                                                                                                       https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                  13 of 19
+
+                                        As shown in Table 3, the proposed model demonstrates superior performance under
+                                  both paradigms. Specifically, under the SD paradigm, the proposed model achieves a
+                                  mean accuracy of 77.05%, representing improvements of 5.48%, 3.05%, 3.05%, 7.56%, 0.96%,
+                                  2.01%, 1.66%, and 1.66% over EEGNet, DGCNN, FBCNet, EEGConformer, LightConvNet,
+                                  IFNet, SF-TGCN, and MSVTNet, respectively. Furthermore, the proposed model achieves a
+                                  mean Kappa value of 0.7027, a mean precision of 0.7802, and a mean F1-score of 0.7771,
+                                  demonstrating a significant advantage.
+
+                                        Under the SI paradigm, the proposed model reaches a mean accuracy of 66.59%,
+                                  exceeding EEGNet, DGCNN, FBCNet, EEGConformer, LightConvNet, IFNet, SF-TGCN,
+                                  and MSVTNet by 6.87%, 2.70%, 17.63%, 7.56%, 14.85%, 4.78%, 0.96%, and 2.01%, respec-
+                                  tively. Additionally, the proposed model achieves a mean Kappa value of 0.5545, a mean
+                                  precision of 0.6648, and a mean F1-score of 0.6640, all of which are significantly higher
+                                  than those of the benchmark models. These results highlight the exceptional capability of
+                                  the proposed model in decoding EEG signals, consistently achieving high-performance
+                                  classification of motor imagery tasks. Compared to other benchmark models, the novel
+                                  architectural design of the proposed model proves more effective in extracting features
+                                  relevant to motor imagery, thereby confirming its superiority in EEG signal decoding tasks.
+
+                                        In addition to classification performance, inference latency was evaluated using a
+                                  minimal pure PyTorch implementation. The proposed model achieves an average inference
+                                  latency of 0.066 ms per sample. This value is competitive with lightweight CNN-based
+                                  models such as EEGNet (0.014 ms) and LightConvNet (0.021 ms), as well as GNN-based
+                                  approaches including DGCNN (0.047 ms), FBCNet (0.052 ms), IFNet (0.035 ms), and SF-
+                                  TGCN (0.072 ms). In contrast, Transformer-based models exhibit substantially higher
+                                  latency, with EEGConformer at 2.095 ms and MSVTNet at 1.478 ms. These results indicate
+                                  that the dynamic graph evolution mechanism introduces only moderate computational
+                                  overhead while maintaining high classification performance.
+
+                                  Table 3. Comparative Performance Metrics in Subject-Dependent and Subject-Independent Analyses
+                                  on the BCIC-IV-2A Dataset.
+
+                                  Subject-Dependent                      Subject-Independent            Inference Latency
+
+Model                   Accuracy  Kappa Precision    F1-Score  Accuracy  Kappa Precision      F1-Score     (ms/Sample)
+
+EEGNet (2018)             0.7222  0.6243  0.7433      0.7182     0.5972  0.4591  0.6471        0.5850           0.014
+DGCNN (2020)              0.7465  0.6497  0.7612      0.7461     0.6389  0.5069  0.6862        0.6289           0.047
+FBCNet (2020)             0.7465  0.6535  0.7819      0.7396     0.4896  0.3140  0.5490        0.4475           0.052
+EEGConformer (2022)       0.7014  0.5524  0.7075      0.6996     0.5903  0.4455  0.6162        0.5823           2.095
+LightConvNet (2022)       0.7674  0.6790  0.7891      0.7509     0.5174  0.3460  0.5968        0.4893           0.021
+IFNet (2023)              0.7569  0.6626  0.7654      0.7560     0.6181  0.4817  0.6927        0.6045           0.035
+SF-TGCN (2024)            0.7604  0.6628  0.7743      0.7592     0.6563  0.5239  0.7032        0.6459           0.072
+MSVTNet (2024)            0.7604  0.6641  0.7808      0.7490     0.6458  0.5072  0.7012        0.6317           1.478
+Proposed (2025)           0.7770  0.7027  0.7802      0.7771     0.6659  0.5545  0.6648        0.6640           0.066
+
+                                  3.9. Cross-Dataset Evaluation
+
+                                        To further assess the robustness and generalization capability of the proposed SFE-
+                                  GAT, we conducted experiments on the OpenBMI dataset [46]. For fair comparison, we
+                                  selected the same 22 electrodes as in BCIC-IV-2a and focused on the left-hand and right-
+                                  hand motor imagery task from Session 1.
+
+                                        The models trained on BCIC-IV-2a were directly evaluated on OpenBMI data in a
+                                  zero-shot cross-dataset setting. Performance metrics (mean ± standard deviation across
+                                  subjects) are summarized in Table 4.
+
+                                                                                              https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                           14 of 19
+
+                        Table 4. Performance on OpenBMI Binary Motor Imagery Task (left vs. right hand, Session 1).
+                        Mean ± standard deviation across subjects.
+
+                        Model         Accuracy (%)    Kappa
+
+                        EEGNet        68.51 ± 12.7  0.52 ± 0.15
+                        DGCNN         65.49 ± 13.1  0.48 ± 0.17
+                        FBCNet        64.57 ± 13.5  0.47 ± 0.16
+                        EEGConformer  58.18 ± 14.2  0.40 ± 0.18
+                        LightConvNet  69.48 ± 12.4  0.53 ± 0.14
+                        IFNet         66.28 ± 13.3  0.49 ± 0.16
+                        SF-TGCN       64.54 ± 13.5  0.47 ± 0.17
+                        MSVTNet       59.56 ± 15.5  0.42 ± 0.19
+                        Proposed      67.18 ± 13.6  0.51 ± 0.16
+
+                        4. Discussion
+
+                              This study proposes an inter-layer graph evolution-based neural network model,
+                        Structure-Feature Evolution Graph Attention Network (SFE-GAT), for decoding MI-EEG
+                        signals. Experimental results demonstrate that the model achieves excellent and robust
+                        classification performance under both the SD and SI paradigms. This success is primarily
+                        attributed to the model's structure-feature co-evolution mechanism, which dynamically
+                        denoises and optimizes the initial functional brain connectivity graph constructed based
+                        on neuroscientific priors, thereby more accurately capturing the spatio-spectral patterns
+                        relevant to the motor imagery task.
+
+                              An effective graph structure is fundamental to the performance of graph neural
+                        networks. The initial adjacency matrix in this study was constructed based on the PLV,
+                        chosen for its relative insensitivity to signal amplitude, which helps suppress noise in EEG
+                        signals. Node features were extracted as the power within frequency bands from 8 to 40 Hz
+                        with 4 Hz intervals, designed to cover motor imagery-related rhythms such as the mu
+                        and beta bands. However, initial graphs built on fixed priors inevitably contain noise and
+                        redundant connections. To address this, the model incorporates a graph evolution module
+                        that iteratively refines node representations and graph topology through the alternating
+                        collaboration of a GAT and a GAE. The GAE employs a probabilistic edge update strategy
+                        based on Bernoulli sampling, which essentially performs approximate posterior sampling
+                        of the latent graph structure and can be viewed as a guided form of DropEdge [47]. Ablation
+                        experiments (Figure 4) confirmed the critical role of this dynamic structural optimization,
+                        as disabling the module led to a significant performance drop. Notably, the Monte Carlo-
+                        based edge update strategy employed in the GAE, which models edges as random variables,
+                        is less sensitive to hyperparameters than hard-pruning methods and improves the model's
+                        robustness to the inherent uncertainty of EEG signals and inter-subject variability.
+
+                              The model's strong overall performance under both SD and SI paradigms (Figure 3)
+                        validates its powerful feature extraction and generalization capabilities. It is noteworthy
+                        that Subject A02 exhibited suboptimal performance under both paradigms, consistent with
+                        the phenomenon of "BCI-illiteracy" reported in the literature, where some subjects struggle
+                        to generate stable motor imagery EEG patterns. This finding underscores the need for
+                        future research to focus on enhancing model adaptability to individual differences. The
+                        proposed graph-evolution mechanism may offer a promising direction for mitigating BCI
+                        illiteracy. By dynamically refining functional connectivity through inter-layer co-adaptation,
+                        SFE-GAT could potentially be combined with transfer learning or domain-adaptation
+                        strategies to better accommodate inter-subject variability and improve performance for
+                        low-performing users.
+
+                                                    https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                                                                                                             15 of 19
+
+                              Ablation studies systematically validated the contribution of each component. Replac-
+                        ing the GAT with a GCN resulted in performance degradation, highlighting the advantage
+                        of the attention mechanism in adaptively weighting node importance [48]. Furthermore,
+                        removing the Monte Carlo-based edge evolution mechanism also led to a performance
+                        decrease, albeit to a lesser extent, indicating that the introduced probabilistic regularization
+                        effectively enhances model robustness. Additionally, even when starting from a completely
+                        random adjacency matrix, enabling the graph evolution mechanism produced consistent
+                        improvements across multiple evaluation metrics compared to the non-evolutionary base-
+                        line. This outcome further supports the mechanism's ability to adaptively learn and refine
+                        task-relevant functional connectivity, demonstrating its significant contribution even in the
+                        absence of structured initial priors.
+
+                              The efficiency of the proposed model is further supported by its inference la-
+                        tency. As shown in Table 3, The model exhibits highly competitive latency compared
+                        to lightweight CNN-based and GNN-based baselines, while being substantially faster than
+                        Transformer-based approaches. These observations indicate that the dynamic graph evolu-
+                        tion mechanism introduces only moderate computational overhead, preserving real-time
+                        feasibility without compromising classification performance. This efficiency advantage
+                        highlights the practical value of graph-based dynamic architectures over attention-heavy
+                        Transformer models for resource-constrained EEG decoding applications.
+
+                              Visualization of the feature embeddings and cluster evaluation provided intuitive
+                        support for the effectiveness of the structure-feature co-evolution. As shown in Figure 5,
+                        after three evolution stages, the Sil Score increased monotonically from 0.3088 to 0.3992,
+                        while the DBI decreased from 0.9427 to 0.7909. This trend clearly indicates that the evolution
+                        process significantly enhances intra-class compactness and inter-class separation.
+
+                              The cross-dataset evaluation on OpenBMI further strengthens this conclusion.
+                        As shown in Table 4, despite the domain shift and higher inter-subject variability compared
+                        to BCIC-IV-2a, the proposed model maintained competitive performance in the binary
+                        motor imagery task. These observed results demonstrate that the graph evolution mecha-
+                        nism captures generalizable EEG connectivity patterns across different datasets, acquisition
+                        systems, and task formulations.
+
+                              The model's enhanced performance stems primarily from its ability to effectively
+                        simulate the brain's adaptive optimization of functional networks during motor imagery
+                        through a structure-feature evolution mechanism. Visualization of brain network evolution
+                        reveals that, as network depth increases, node features gradually form more distinct class
+                        boundaries, illustrating a shift in neural information processing from sensory representation
+                        to abstract intention encoding. Moreover, deeper network layers tend to preserve a small
+                        subset of high-frequency, critical connections. This pattern aligns with neuroscientific
+                        observations commonly referred to as the "task core network" or "efficient information
+                        routing," in which the brain strengthens information transmission along a limited number
+                        of key pathways during task execution.
+
+                              In summary, the proposed inter-layer graph evolution model provides an effective
+                        solution for MI-EEG decoding through dynamic graph structure optimization. Compar-
+                        ative results with existing benchmark methods (Table 3) further confirm the competitive
+                        advantage of the proposed model. However, this study has certain limitations. First, model
+                        performance remains somewhat influenced by individual differences, as evidenced by
+                        the results for Subject A02. Second, the initial graph structure relies on PLV; future work
+                        could explore other connectivity metrics or data-driven initialization methods. Future
+                        efforts will focus on developing more efficient graph evolution strategies and exploring
+                        the application potential of this framework to a wider range of EEG paradigms, such as
+
+                                                                                                                             https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                                            16 of 19
+
+                        emotion recognition and sleep stage scoring, to advance graph neural networks in the field
+                        of EEG decoding.
+
+                        5. Conclusions
+
+                              To overcome the representational constraints of static graphs in motor imagery EEG
+                        decoding, this study introduces SFE-GAT, a graph neural network founded on dynamic
+                        graph structure learning. The principal innovation is an inter-layer graph evolution mech-
+                        anism, engineered to emulate the dynamic and hierarchical reorganization of functional
+                        brain connectivity throughout motor imagery tasks. The proposed model employs neu-
+                        rophysiologically interpretable features, which include functional connectivity based on
+                        phase-locking value and multiband power spectral density used as nodal attributes. It
+                        leverages graph attention networks and graph autoencoders to enable the co-adaptation of
+                        graph topology and node features throughout the network layers.
+
+                              Experiments conducted on the BCI Competition IV-2a dataset show that the proposed
+                        method significantly enhances decoding performance in multiple motor imagery tasks,
+                        consistently surpassing state-of-the-art baselines across different evaluation frameworks.
+                        The evolved graph structures display sparsification and strengthening of task-relevant
+                        connections, intuitively mirroring the hierarchical information routing patterns of the
+                        brain during cognitive processing. Consequently, this study not only delivers an effective
+                        dynamic graph optimization tool for MI-EEG decoding but also introduces a novel compu-
+                        tational perspective for investigating the hierarchical dynamic representations involved
+                        in motor intention encoding. This approach forges a meaningful connection between
+                        adaptive graph learning and neural dynamics, offering valuable insights for develop-
+                        ing next-generation brain-computer interface systems and underscoring the potential of
+                        computational models in elucidating neural mechanisms.
+
+                        Author Contributions: Conceptualization, X.G. and G.C.; methodology, X.G.; software, X.G.; val-
+                        idation, X.G., G.C. and G.M.; formal analysis, X.G.; investigation, X.G.; resources, G.C. and G.M.;
+                        data curation, X.G.; writing--original draft preparation, X.G.; writing--review and editing, X.G.,
+                        G.C. and G.M.; visualization, X.G.; supervision, G.C. and G.M.; project administration, G.C.; funding
+                        acquisition, G.C. All authors have read and agreed to the published version of the manuscript.
+
+                        Funding: This research was funded by the National Key Research and Development Program of
+                        China, grant number 2020YFB17122, the China Postdoctoral Science Foundation, grant number
+                        2021M692457, and the Jilin Provincial Science and Technology Development Program, grant numbers
+                        YDZJ202301ZYTS263 and YDZJ202301ZYTS423.
+
+                        Institutional Review Board Statement: Not applicable.
+
+                        Informed Consent Statement: Not applicable.
+
+                        Data Availability Statement: The data that support the findings of this study are available upon
+                        reasonable request from the authors. The source code, trained models, and preprocessing scripts
+                        are publicly available at https://github.com/GaoHSin/SFE-GAT (12 January 2026) to facilitate
+                        reproducibility and independent evaluation.
+
+                        Conflicts of Interest: The authors declare no conflicts of interest.
+
+                        Abbreviations
+
+                        The following abbreviations are used in this manuscript:
+
+                        EEG  Electroencephalography
+                        BCI  Brain-Computer Interface
+                        MI   Motor imagery
+                        GNN  Graph Neural Network
+
+                                                                                  https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730                                    17 of 19
+
+                        PLV  Phase-Locking Value
+                        PSD  Power Spectral Density
+                        GAT  Graph Attention Network
+                        GAE  Graph Autoencoder
+                        GCN  Graph Convolutional Network
+                        SD   Subject-dependent
+                        SI   Subject-independent
+                        DBI  Davies-Bouldin Index
+
+References
+
+1. Cherloo, M.N.; Amiri, H.K.; Daliri, M.R. Ensemble regularized common spatio-spectral pattern (ensemble RCSSP) model for
+       motor imagery-based EEG signal classification. Comput. Biol. Med. 2021, 135, 104546. [CrossRef]
+
+2. Saibene, A.; Ghaemi, H.; Dagdevir, E. Deep learning in motor imagery EEG signal decoding: A Systematic Review. Neurocomputing
+       2024, 610, 128577. [CrossRef]
+
+3. Hameed, I.; Khan, D.M.; Ahmed, S.M.; Aftab, S.S.; Fazal, H. Enhancing motor imagery EEG signal decoding through machine
+       learning: A systematic review of recent progress. Comput. Biol. Med. 2025, 185, 109534. [CrossRef]
+
+4. Lu, B.; Wang, F.; Chen, J.; Wen, G.; Hua, C.; Fu, R. Dynamic Hierarchical Convolutional Attention Network for Recognizing
+       Motor Imagery Intention. IEEE Trans. Cybern. 2025, 55, 2202-2212. [CrossRef]
+
+5. Chen, Z.; Yang, R.; Huang, M.; Li, F.; Lu, G.; Wang, Z. EEGProgress: A fast and lightweight progressive convolution architecture
+       for EEG classification. Comput. Biol. Med. 2024, 169, 107901. [CrossRef]
+
+6. Zhu, S.; Hosni, S.I.; Huang, X.; Wan, M.; Borgheai, S.B.; McLinden, J.; Shahriari, Y.; Ostadabbas, S. A dynamical graph-based
+       feature extraction approach to enhance mental task classification in brain-computer interfaces. Comput. Biol. Med. 2023,
+       153, 106498. [CrossRef]
+
+7. Aung, H.W.; Li, J.J.; An, Y.; Su, S.W. A Real-Time Framework for EEG Signal Decoding With Graph Neural Networks and
+       Reinforcement Learning. IEEE Trans. Neural Netw. Learn. Syst. 2025, 36, 17047-17058. [CrossRef]
+
+8. Ye, M.; Chen, C.P.; Zhang, T. Hierarchical dynamic graph convolutional network with interpretability for EEG-based emotion
+       recognition. IEEE Trans. Neural Netw. Learn. Syst. 2022, 36, 19489-19500. [CrossRef]
+
+9. Lv, R.; Chang, W.; Yan, G.; Nie, W.; Zheng, L.; Guo, B.; Sadiq, M.T. A novel recognition and classification approach for motor
+       imagery based on spatio-temporal features. IEEE J. Biomed. Health Inform. 2024, 29, 210-223. [CrossRef]
+
+10. Feng, N.; Hu, F.; Wang, H.; Zhou, B. Motor intention decoding from the upper limb by graph convolutional network based on
+       functional connectivity. Int. J. Neural Syst. 2021, 31, 2150047. [CrossRef]
+
+11. Shi, J.; Tang, J.; Lu, Z.; Zhang, R.; Yang, J.; Guo, Q.; Zhang, D. A brain topography graph embedded convolutional neural network
+       for EEG-based motor imagery classification. Biomed. Signal Process. Control 2024, 95, 106401. [CrossRef]
+
+12. Tang, X.; Zhang, J.; Qi, Y.; Liu, K.; Li, R.; Wang, H. A spatial filter temporal graph convolutional network for decoding motor
+       imagery EEG signals. Expert Syst. Appl. 2024, 238, 121915. [CrossRef]
+
+13. Xiong, H.; Yan, Y.; Chen, Y.; Liu, J. Graph convolution network-based eeg signal analysis: A review. Med. Biol. Eng. Comput. 2025,
+       63, 1609-1625. [CrossRef]
+
+14. Hou, Y.; Jia, S.; Lun, X.; Hao, Z.; Shi, Y.; Li, Y.; Zeng, R.; Lv, J. GCNs-net: A graph convolutional neural network approach for
+       decoding time-resolved eeg motor imagery signals. IEEE Trans. Neural Netw. Learn. Syst. 2022, 35, 7312-7323. [CrossRef]
+
+15. Zhang, S.; An, D.; Liu, J.; Chen, J.; Wei, Y.; Sun, F. Dynamic decomposition graph convolutional neural network for SSVEP-based
+       brain-computer interface. Neural Netw. 2024, 172, 106075. [CrossRef]
+
+16. Xu, F.; Li, J.; Dong, G.; Li, J.; Chen, X.; Zhu, J.; Hu, J.; Zhang, Y.; Yue, S.; Wen, D.; et al. EEG decoding method based on
+       multi-feature information fusion for spinal cord injury. Neural Netw. 2022, 156, 135-151. [CrossRef]
+
+17. Li, N.; Xiao, J.; Mao, N.; Cheng, D.; Chen, X.; Zhao, F.; Shi, Z. Joint learning of multi-level dynamic brain networks for autism
+       spectrum disorder diagnosis. Comput. Biol. Med. 2024, 171, 108054. [CrossRef]
+
+18. Zhu, Z.; Li, J.; Yao, L. BrainCHEF: Cross-Level Hypergraph Enhanced Fusion model for brain networks. Comput. Biol. Med. 2025,
+       195, 110446. [CrossRef]
+
+19. Tanamachi, K.; Kuwahara, W.; Okawada, M.; Sasaki, S.; Kaneko, F. Relationship between resting-state functional connectivity
+       and change in motor function after motor imagery intervention in patients with stroke: A scoping review. J. NeuroEng. Rehabil.
+       2023, 20, 159. [CrossRef]
+
+20. Chen, T.; Li, H.; Zheng, H.; Fan, Y. dFCExpert: Learning Dynamic Functional Connectivity Patterns with Modularity and State
+       Experts. IEEE Trans. Med. Imaging 2025, 45, 1088-1098. [CrossRef]
+
+21. Dekleva, B.M.; Chowdhury, R.H.; Batista, A.P.; Chase, S.M.; Yu, B.M.; Boninger, M.L.; Collinger, J.L. Motor cortex retains and
+       reorients neural dynamics during motor imagery. Nat. Hum. Behav. 2024, 8, 729-742. [CrossRef]
+
+                                                          https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730  18 of 19
+
+22. Tang, H.; Xie, S.; Xie, X.; Cui, Y.; Li, B.; Zheng, D.; Hao, Y.; Wang, X.; Jiang, Y.; Tian, Z. Multi-domain based dynamic graph
+       representation learning for EEG emotion recognition. IEEE J. Biomed. Health Inform. 2024, 28, 5227-5238. [CrossRef]
+
+23. Shehzad, A.; Zhang, D.; Yu, S.; Abid, S.; Xia, F. Dynamic Graph Transformer for Brain Disorder Diagnosis. IEEE J. Biomed. Health
+       Inform. 2025, 29, 4388-4400. [CrossRef]
+
+24. Hu, L.; Tan, C.; Xu, J.; Qiao, R.; Hu, Y.; Tian, Y. Decoding emotion with phase-amplitude fusion features of EEG functional
+       connectivity network. Neural Netw. 2024, 172, 106148. [CrossRef]
+
+25. Jui, J.J.; Hettiarachchi, I.T.; Bhatti, A.; Creighton, D. PLVNet: EEG-based trust classification using Phase Locking Value connectivity
+       and deep neural networks. Comput. Biol. Med. 2025, 198, 111269. [CrossRef]
+
+26. Zhu, J.; Jiang, C.; Chen, J.; Lin, X.; Yu, R.; Li, X.; Hu, B. EEG based depression recognition using improved graph convolutional
+       neural network. Comput. Biol. Med. 2022, 148, 105815. [CrossRef]
+
+27. Ang, K.K.; Chin, Z.Y.; Wang, C.; Guan, C.; Zhang, H. Filter bank common spatial pattern algorithm on BCI competition IV
+       datasets 2a and 2b. Front. Neurosci. 2012, 6, 39. [CrossRef]
+
+28. Ang, K.K.; Chin, Z.Y.; Zhang, H.; Guan, C. Filter bank common spatial pattern (FBCSP) in brain-computer interface. In Proceedings
+       of the 2008 IEEE International Joint Conference on Neural Networks (IEEE World Congress on Computational Intelligence), Hong Kong,
+       China, 1-8 June 2008; IEEE: New York, NY, USA, 2008; pp. 2390-2397. [CrossRef]
+
+29. Velickovic´, P.; Cucurull, G.; Casanova, A.; Romero, A.; Lio, P.; Bengio, Y. Graph attention networks. arXiv 2017, arXiv:1710.10903.
+       [CrossRef]
+
+30. Kipf, T.N.; Welling, M. Variational graph auto-encoders. arXiv 2016, arXiv:1611.07308. [CrossRef]
+31. Brody, S.; Alon, U.; Yahav, E. How attentive are graph attention networks? arXiv 2021, arXiv:2105.14491. [CrossRef]
+32. Ma, Y.; Klabjan, D. Diminishing batch normalization. IEEE Trans. Neural Netw. Learn. Syst. 2022, 35, 6544-6557. [CrossRef]
+
+       [PubMed]
+33. Peng, H.; Yu, Y.; Yu, S. Re-thinking the effectiveness of batch normalization and beyond. IEEE Trans. Pattern Anal. Mach. Intell.
+
+       2023, 46, 465-478. [CrossRef] [PubMed]
+34. Zhang, R.; Zhang, Y.; Lu, C.; Li, X. Unsupervised graph embedding via adaptive graph learning. IEEE Trans. Pattern Anal. Mach.
+
+       Intell. 2022, 45, 5329-5336. [CrossRef] [PubMed]
+35. Brunner, C.; Leeb, R.; Müller-Putz, G.; Schlögl, A.; Pfurtscheller, G. BCI Competition 2008-Graz data set A. Inst. Knowl. Discov.
+
+       (Lab. Brain-Comput. Interfaces) Graz Univ. Technol. 2008, 16, 34. [CrossRef]
+36. Sun, B.; Wu, Z.; Hu, Y.; Li, T. Golden subject is everyone: A subject transfer neural network for motor imagery-based brain
+
+       computer interfaces. Neural Netw. 2022, 151, 111-120. [CrossRef] [PubMed]
+37. Jin, J.; Chen, W.; Xu, R.; Liang, W.; Wu, X.; He, X.; Wang, X.; Cichocki, A. Multiscale spatial-temporal feature fusion neural
+
+       network for motor imagery brain-computer interfaces. IEEE J. Biomed. Health Inform. 2024, 29, 198-209. [CrossRef] [PubMed]
+38. Wang, D.; Wei, Q. SMANet: A Model Combining SincNet, Multi-branch Spatial-Temporal CNN and Attention Mechanism for
+
+       Motor Imagery BCI. IEEE Trans. Neural Syst. Rehabil. Eng. 2025, 33, 1497-1508. [CrossRef] [PubMed]
+39. Lawhern, V.J.; Solon, A.J.; Waytowich, N.R.; Gordon, S.M.; Hung, C.P.; Lance, B.J. EEGNet: A compact convolutional neural
+
+       network for EEG-based brain-computer interfaces. J. Neural Eng. 2018, 15, 056013. [CrossRef] [PubMed]
+40. Song, T.; Zheng, W.; Song, P.; Cui, Z. EEG emotion recognition using dynamical graph convolutional neural networks. IEEE
+
+       Trans. Affect. Comput. 2018, 11, 532-541. [CrossRef]
+41. Mane, R.; Chew, E.; Chua, K.; Ang, K.K.; Robinson, N.; Vinod, A.P.; Lee, S.W.; Guan, C. FBCNet: A multi-view convolutional
+
+       neural network for brain-computer interface. arXiv 2021, arXiv:2104.01233. [CrossRef]
+42. Song, Y.; Zheng, Q.; Liu, B.; Gao, X. EEG conformer: Convolutional transformer for EEG decoding and visualization. IEEE Trans.
+
+       Neural Syst. Rehabil. Eng. 2022, 31, 710-719. [CrossRef] [PubMed]
+43. Ma, X.; Chen, W.; Pei, Z.; Liu, J.; Huang, B.; Chen, J. A temporal dependency learning CNN with attention mechanism for MI-EEG
+
+       decoding. IEEE Trans. Neural Syst. Rehabil. Eng. 2023, 31, 3188-3200. [CrossRef] [PubMed]
+44. Wang, J.; Yao, L.; Wang, Y. IFNet: An interactive frequency convolutional neural network for enhancing motor imagery decoding
+
+       from EEG. IEEE Trans. Neural Syst. Rehabil. Eng. 2023, 31, 1900-1911. [CrossRef] [PubMed]
+45. Liu, K.; Yang, T.; Yu, Z.; Yi, W.; Yu, H.; Wang, G.; Wu, W. MSVTNet: Multi-scale vision transformer neural network for EEG-based
+
+       motor imagery decoding. IEEE J. Biomed. Health Inform. 2024, 28, 7126-7137. [CrossRef] [PubMed]
+46. Lee, M.H.; Kwon, O.Y.; Kim, Y.J.; Kim, H.K.; Lee, Y.E.; Williamson, J.; Fazli, S.; Lee, S.W. EEG dataset and OpenBMI toolbox for
+
+       three BCI paradigms: An investigation into BCI illiteracy. GigaScience 2019, 8, giz002. [CrossRef] [PubMed]
+
+                        https://doi.org/10.3390/s26051730
+Sensors 2026, 26, 1730  19 of 19
+
+47. Han, J.; Huang, W.; Rong, Y.; Xu, T.; Sun, F.; Huang, J. Structure-aware dropedge toward deep graph convolutional networks.
+       IEEE Trans. Neural Netw. Learn. Syst. 2023, 35, 15565-15577. [CrossRef] [PubMed]
+
+48. Zhong, L.; Chen, Z.; Wu, Z.; Du, S.; Chen, Z.; Wang, S. Learnable graph convolutional network with semisupervised graph
+       information bottleneck. IEEE Trans. Neural Netw. Learn. Syst. 2023, 36, 433-446. [CrossRef] [PubMed]
+
+Disclaimer/Publisher's Note: The statements, opinions and data contained in all publications are solely those of the individual
+author(s) and contributor(s) and not of MDPI and/or the editor(s). MDPI and/or the editor(s) disclaim responsibility for any injury to
+people or property resulting from any ideas, methods, instructions or products referred to in the content.
+
+                        https://doi.org/10.3390/s26051730
+

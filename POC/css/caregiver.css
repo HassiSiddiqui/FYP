@@ -1,0 +1,170 @@
+/* caregiver.css (VIZ) — caregiver dashboard, brain-graph card, KG subgraph card.
+ * Colours/spacing come from tokens.css (ADR 0005 D31–D34); the fallbacks below are the same values
+ * so these views still render if tokens.css fails to load. Reduced motion respected (D34). */
+
+/* ---------- dashboard shell ---------- */
+#sa-main:has(> #sa-caregiver:not([hidden])) > #sa-stage,
+#sa-main:has(> #sa-caregiver:not([hidden])) > #sa-rail { display: none; }
+#sa-caregiver[hidden] { display: none !important; }
+#sa-caregiver {
+  grid-column: 1 / -1; min-height: 0; overflow-y: auto;
+  padding: var(--sp-4, 16px); background: var(--bg-page, #0E1318); color: var(--text, #E9EEF3);
+  font-size: var(--fs-dashboard, 16px);
+  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+.cv-banner {
+  border: 2px dashed var(--care, #C3A8FF); color: var(--care, #C3A8FF); background: var(--bg-raised, #212B37);
+  border-radius: var(--r-panel, 12px); padding: var(--sp-2, 8px) var(--sp-4, 16px); font-weight: 600;
+}
+.cv-titlebar { display: flex; align-items: baseline; gap: var(--sp-4, 16px); flex-wrap: wrap; margin: var(--sp-3, 12px) 0 var(--sp-2, 8px); }
+.cv-title { font-size: 24px; margin: 0; font-weight: 600; }
+.cv-hint { color: var(--text-subtle, #8C98A6); font-size: 14px; }
+.cv-patient {
+  background: var(--bg-surface, #18202A); border: 1px solid var(--border, #6E7D8F); border-radius: var(--r-panel, 12px);
+  padding: var(--sp-2, 8px) var(--sp-4, 16px); color: var(--text-muted, #AEB9C5); margin-bottom: var(--sp-4, 16px);
+}
+.cv-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--sp-4, 16px); }
+.cv-tile {
+  background: var(--bg-raised, #212B37); border: 1px solid var(--border, #6E7D8F); border-radius: var(--r-panel, 12px);
+  padding: var(--sp-4, 16px); min-width: 0;
+}
+.cv-span-5 { grid-column: span 5; } .cv-span-6 { grid-column: span 6; }
+.cv-span-7 { grid-column: span 7; } .cv-span-12 { grid-column: span 12; }
+@media (max-width: 1279px) { .cv-span-5, .cv-span-6, .cv-span-7 { grid-column: span 12; } }
+.cv-h { font-size: 18px; font-weight: 600; margin: 0 0 var(--sp-2, 8px); }
+.cv-sub, .cv-empty { color: var(--text-muted, #AEB9C5); margin: 0 0 var(--sp-2, 8px); }
+.cv-panel-head { display: flex; align-items: center; gap: var(--sp-3, 12px); flex-wrap: wrap; margin-bottom: var(--sp-3, 12px); }
+.cv-panel-head .cv-h { margin: 0; }
+
+/* buttons (README-bracketed labels via .sa-bracketed; fallback here in case components.css is absent) */
+.cv-btn {
+  min-height: var(--target-min, 44px); min-width: 96px; padding: 0 var(--sp-4, 16px);
+  font: inherit; font-weight: 600; color: var(--text, #E9EEF3); background: var(--bg-surface, #18202A);
+  border: 2px solid var(--border, #6E7D8F); border-radius: var(--r-panel, 12px); cursor: pointer;
+}
+.cv-btn:hover { border-color: var(--text-muted, #AEB9C5); }
+.cv-btn:focus-visible { outline: 4px solid var(--focus-ring, #FFC94D); outline-offset: 2px; }
+.cv-btn:disabled { opacity: .55; cursor: default; }
+#sa-caregiver .sa-bracketed::before { content: "["; }
+#sa-caregiver .sa-bracketed::after { content: "]"; }
+.cv-approve { border-color: var(--ok, #7DDB98); color: var(--ok, #7DDB98); }
+.cv-reject, .cv-btn-danger { border-color: var(--danger, #FF9C9C); color: var(--danger, #FF9C9C); }
+
+/* ---------- queue ---------- */
+.cv-count { padding: 2px var(--sp-3, 12px); border-radius: var(--r-pill, 999px); border: 1px solid var(--border, #6E7D8F); color: var(--text-muted, #AEB9C5); }
+.cv-count.is-pending { border-color: var(--care, #C3A8FF); color: var(--care, #C3A8FF); font-weight: 600; }
+.cv-queue-list, .cv-queue-history { list-style: none; margin: 0; padding: 0; }
+.cv-req { background: var(--bg-surface, #18202A); border: 2px solid var(--care, #C3A8FF); border-radius: var(--r-panel, 12px); padding: var(--sp-3, 12px) var(--sp-4, 16px); margin-bottom: var(--sp-3, 12px); }
+.cv-req-top { display: flex; align-items: center; gap: var(--sp-3, 12px); flex-wrap: wrap; }
+.cv-chip { font-size: 14px; font-weight: 700; padding: 2px var(--sp-2, 8px); border-radius: var(--r-pill, 999px); border: 1px solid currentColor; }
+.cv-chip-care { color: var(--care, #C3A8FF); }
+.cv-req-intent { font-size: 20px; font-weight: 600; }
+.cv-req-elapsed { margin-left: auto; color: var(--text-subtle, #8C98A6); font-variant-numeric: tabular-nums; }
+.cv-req-facts { margin: var(--sp-2, 8px) 0; display: grid; gap: 2px; }
+.cv-fact { display: grid; grid-template-columns: 110px 1fr; gap: var(--sp-2, 8px); }
+.cv-fact dt { color: var(--text-muted, #AEB9C5); } .cv-fact dd { margin: 0; font-variant-numeric: tabular-nums; }
+.cv-rule { color: var(--warn, #FF9F68); }
+.cv-rule::before { content: "\26A0\FE0E  "; }
+.cv-req-label { color: var(--text-subtle, #8C98A6); font-size: 14px; margin: 0 0 var(--sp-2, 8px); }
+.cv-req-actions { display: flex; gap: var(--sp-3, 12px); }
+.cv-hist { color: var(--text-muted, #AEB9C5); padding: 2px 0; }
+.cv-hist.is-approved { color: var(--ok, #7DDB98); } .cv-hist.is-rejected { color: var(--danger, #FF9C9C); }
+
+/* ---------- gauges ---------- */
+.cv-gauge { margin-bottom: var(--sp-4, 16px); }
+.cv-gauge-top { display: flex; justify-content: space-between; align-items: baseline; }
+.cv-gauge-label { color: var(--text-muted, #AEB9C5); }
+.cv-gauge-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cv-bar { height: 12px; border-radius: var(--r-pill, 999px); background: var(--bg-surface, #18202A); border: 1px solid var(--border, #6E7D8F); overflow: hidden; margin: 4px 0; }
+.cv-bar-fill { height: 100%; background: var(--info, #6CC8E4); transition: width 300ms ease; }
+.tone-ok .cv-bar-fill { background: var(--ok, #7DDB98); }
+.tone-warn .cv-bar-fill { background: var(--warn, #FF9F68); }
+.tone-danger .cv-bar-fill { background: var(--danger, #FF9C9C); }
+.cv-gauge-detail { margin: 0; color: var(--text-subtle, #8C98A6); font-size: 14px; }
+.cv-badge-mini { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--warn, #FF9F68); border: 1px solid currentColor; border-radius: var(--r-pill, 999px); padding: 0 var(--sp-2, 8px); }
+
+/* ---------- tables ---------- */
+.cv-table-wrap { overflow-x: auto; }
+.cv-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.cv-table th { text-align: left; color: var(--text-muted, #AEB9C5); font-weight: 600; border-bottom: 1px solid var(--border, #6E7D8F); padding: 4px var(--sp-2, 8px); position: sticky; top: 0; background: var(--bg-raised, #212B37); }
+.cv-table td { padding: 4px var(--sp-2, 8px); border-bottom: 1px solid var(--border, #6E7D8F); vertical-align: top; }
+.cv-state.is-on { color: var(--ok, #7DDB98); font-weight: 600; }
+.cv-table tr.is-changed td { animation: cv-flash 1.2s ease-out 1; }
+@keyframes cv-flash { from { background: var(--surface-focus, #2A2410); } to { background: transparent; } }
+.cv-mono { font-family: "Cascadia Mono", Consolas, "Courier New", monospace; font-size: 14px; }
+.cv-data { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted, #AEB9C5); }
+.cv-audit-scroll { max-height: 320px; overflow-y: auto; }
+.cv-audit-badge { font-weight: 700; padding: 2px var(--sp-3, 12px); border-radius: var(--r-pill, 999px); border: 2px solid currentColor; }
+.cv-audit-badge.tone-ok { color: var(--ok, #7DDB98); }
+.cv-audit-badge.tone-danger { color: var(--danger, #FF9C9C); }
+.cv-audit-badge.tone-pending { color: var(--text-muted, #AEB9C5); }
+.cv-audit-head { font-family: "Cascadia Mono", Consolas, monospace; color: var(--text-muted, #AEB9C5); margin-right: auto; }
+.cv-audit-table tr.is-broken td { color: var(--danger, #FF9C9C); font-weight: 700; }
+.cv-audit-table tr.is-broken td:first-child::before { content: "\2715  "; }
+.cv-audit-table tr.is-after-break td { color: var(--warn, #FF9F68); }
+
+/* ---------- brain-graph card (#sa-brain-view, #cv-brain) ---------- */
+.bv-card, .kv-card { color: var(--text, #E9EEF3); font-size: 13px; display: flex; flex-direction: column; gap: 4px; height: 100%; min-height: 0; }
+.bv-head, .kv-head { display: flex; justify-content: space-between; gap: 6px; font-weight: 600; font-size: 14px; flex-wrap: wrap; }
+.bv-badge { font-size: 12px; font-weight: 700; color: var(--text-muted, #AEB9C5); }
+.bv-badge.is-stub { color: var(--warn, #FF9F68); }
+.bv-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.bv-chip { font-size: 12px; padding: 1px 6px; border-radius: var(--r-pill, 999px); border: 1px solid var(--border, #6E7D8F); color: var(--text-muted, #AEB9C5); font-variant-numeric: tabular-nums; }
+.bv-chip-n { margin-left: 4px; font-weight: 700; }
+.bv-chip.is-done { color: var(--text, #E9EEF3); }
+.bv-chip.is-active { color: var(--on-focus, #0E1318); background: var(--info, #6CC8E4); border-color: var(--info, #6CC8E4); }
+.bv-svg, .kv-svg { width: 100%; flex: 1 1 0; min-height: 96px; display: block; }
+.bv-head-outline { fill: var(--bg-surface, #18202A); stroke: var(--border, #6E7D8F); stroke-width: 2; }
+.bv-nose, .bv-ear { fill: var(--bg-surface, #18202A); stroke: var(--border, #6E7D8F); stroke-width: 2; }
+.bv-edge { stroke: var(--info, #6CC8E4); stroke-width: 2; stroke-opacity: .55; stroke-linecap: round; }
+.bv-edge-removed { stroke: var(--text-subtle, #8C98A6); stroke-width: 1.5; stroke-dasharray: 4 4; stroke-opacity: .7; }
+.bv-dot { fill: var(--text-muted, #AEB9C5); stroke: var(--bg-page, #0E1318); stroke-width: 1.5; }
+.bv-key .bv-dot { fill: var(--focus-ring, #FFC94D); }
+.bv-key-ring { fill: none; stroke: var(--focus-ring, #FFC94D); stroke-width: 2; }
+.bv-label { fill: var(--text-muted, #AEB9C5); font-size: 7.5px; font-family: "Segoe UI", system-ui, sans-serif; pointer-events: none; }
+.bv-key .bv-label { fill: var(--text, #E9EEF3); font-size: 9px; font-weight: 700; }
+.bv-radar-ring { fill: none; stroke: var(--care, #C3A8FF); stroke-width: 2.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.bv-card.is-radar .bv-radar-ring { opacity: 1; animation: bv-radar var(--radar-period, 2000ms) ease-out infinite; }
+@keyframes bv-radar { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.bv-status { margin: 0; color: var(--text-muted, #AEB9C5); font-size: 12px; min-height: 1.2em; }
+.bv-caption, .kv-notes { margin: 0; color: var(--text-subtle, #8C98A6); font-size: 12px; line-height: 1.35; }
+#cv-brain .bv-card { font-size: 14px; }
+#cv-brain .bv-svg { flex: 0 0 auto; height: 340px; }
+#sa-graphs .bv-card, #sa-graphs .kv-card { gap: 2px; }
+#sa-graphs .bv-chip { font-size: 11px; padding: 0 4px; }
+#sa-graphs .bv-chips { flex-wrap: wrap; }   /* RT1-09: evo3 chip no longer overflows the card */
+#sa-graphs .bv-head, #sa-graphs .kv-head { font-size: 13px; }
+#sa-graphs .bv-caption, #sa-graphs .kv-notes { font-size: 11px; line-height: 1.3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+#sa-graphs .bv-status { font-size: 11px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }   /* RT1-08: wrap so the "does not decode EEG" clause stays visible */
+
+/* ---------- KG subgraph card (#sa-kg-view) ---------- */
+.kv-edge { stroke: var(--border, #6E7D8F); stroke-width: 1.5; fill: none; }
+.kv-edge-active { stroke: var(--care, #C3A8FF); stroke-width: 2; }
+.kv-edge-resolve { stroke: var(--focus-ring, #FFC94D); stroke-dasharray: 2 4; stroke-width: 1.5; }
+.kv-edge-label { fill: var(--text-subtle, #8C98A6); font-size: 10px; font-style: italic; }
+.kv-box rect { fill: var(--bg-surface, #18202A); stroke: var(--border, #6E7D8F); stroke-width: 1.5; }
+.kv-box text { fill: var(--text, #E9EEF3); font-size: 13px; font-weight: 600; }
+.kv-room.is-active rect { stroke: var(--care, #C3A8FF); stroke-width: 2; }
+.kv-intent rect { stroke: var(--focus-ring, #FFC94D); }
+.kv-intent.is-empty rect { stroke: var(--border, #6E7D8F); stroke-dasharray: 3 3; }
+.kv-intent.is-empty text { fill: var(--text-subtle, #8C98A6); font-weight: 400; }
+.kv-dot { fill: var(--bg-surface, #18202A); stroke: var(--border, #6E7D8F); stroke-width: 2; }
+.kv-device.is-on .kv-dot { fill: var(--surface-focus, #2A2410); stroke: var(--ok, #7DDB98); }
+.kv-dev-label { fill: var(--text, #E9EEF3); font-size: 11px; font-weight: 600; }
+.kv-ring { fill: none; stroke: var(--focus-ring, #FFC94D); }
+.kv-device.is-winner .kv-ring { stroke-width: 4; }
+.kv-device.is-runner .kv-ring { stroke-width: 3; stroke-dasharray: 5 4; stroke: var(--info, #6CC8E4); }
+.kv-rank { fill: var(--text-muted, #AEB9C5); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kv-device.is-winner .kv-rank { fill: var(--focus-ring, #FFC94D); }
+.kv-device.is-runner .kv-rank { fill: var(--info, #6CC8E4); }
+.kv-acted { fill: var(--warn, #FF9F68); font-size: 10px; font-weight: 700; }
+
+/* ---------- reduced motion (D34): static scale, discrete evo steps, static radar ---------- */
+html[data-reduced-motion="true"] #sa-caregiver *, html[data-reduced-motion="true"] .bv-card *, html[data-reduced-motion="true"] .kv-card * {
+  transition: none !important; animation: none !important;
+}
+html[data-reduced-motion="true"] .bv-card.is-radar .bv-radar-ring { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  #sa-caregiver *, .bv-card *, .kv-card * { transition: none !important; animation: none !important; }
+  .bv-card.is-radar .bv-radar-ring { opacity: 1; transform: none; }
+}

@@ -1,0 +1,26 @@
+# Plan B (approved 2026-10-14): PRELIMINARY — 1 seed, SD per subject, LOSO deferred.
+# Primary configuration P0 from the replication debate (both proposers agreed).
+name: planb-sd-p0
+label: "PRELIMINARY (Plan B: 1 seed; LOSO deferred to Plan A)"
+seeds: [0]
+features:
+  variant: paper        # Butterworth order 4, Welch nperseg 250 / noverlap 125, Simpson, µV²
+  log10: false          # switch only via the pre-registered trainability gate (training data only)
+graph:
+  tau: 0.3              # z-scored PLV threshold, strict >
+  eta: 0.5              # eval mask threshold, strict >
+model:
+  dropout: 0.5
+  residual: false
+  gcn_edge_weight: true
+  evolve: true
+train:
+  lr: 0.01
+  momentum: 0.0
+  weight_decay: 0.001
+  batch_size: 64
+  epochs: 500
+deploy:
+  subject: 1            # A01, pre-declared before any result
+loso:
+  train_sessions: [T]   # Plan A: [T, E]

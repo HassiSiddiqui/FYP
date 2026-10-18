@@ -1,0 +1,46 @@
+# Python Virtual Environments
+research/.venv/
+.venv/
+env/
+venv/
+ENV/
+
+# Python Cache & Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+research/.pytest_cache/
+
+# Large Datasets & Binary Raw Recordings (Exceeds GitHub limits)
+research/data/
+*.mat
+*.fif
+*.edf
+*.gdf
+
+# Cache & Build Runs
+research/.cache/
+research/cache/
+research/runs/
+*.log
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.bak
+
+# LaTeX build artifacts (if compiling locally)
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.lof
+report/*.lot
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz

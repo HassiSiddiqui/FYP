@@ -1,0 +1,128 @@
+name: SilentAssist CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # -------------------------------------------------------------
+  # Gate 1: Code Quality, Linting & Syntax Checks
+  # -------------------------------------------------------------
+  lint-and-syntax:
+    name: Lint & Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax Check All JavaScript Files
+        run: |
+          find POC/js -name "*.js" -exec node --check {} +
+          echo "All 81+ JS modules passed syntax check."
+
+      - name: Static Architectural Constraints Lint
+        run: |
+          node research/tests/js/run_node.js lint
+
+  # -------------------------------------------------------------
+  # Gate 2: Core, Safety, UI, and Knowledge Graph Unit Tests
+  # -------------------------------------------------------------
+  node-and-kg-tests:
+    name: Node.js & KG Unit Tests
+    needs: lint-and-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Core, Safety, UI, and EEG Tests
+        run: |
+          node --test research/tests/js/core/core.test.js \
+                      research/tests/js/safety/*.test.js \
+                      research/tests/js/ui/ui.test.js \
+                      research/tests/js/viz/viz.test.js \
+                      research/tests/js/eeg/eeg.test.js
+
+      - name: Run Knowledge Graph Competency Question Tests
+        run: |
+          node --test kg/tests/*.test.js
+
+  # -------------------------------------------------------------
+  # Gate 3: Python Signal Processing, Neural Tests & Mathematical Parity
+  # -------------------------------------------------------------
+  python-and-parity:
+    name: Python Pytest & Numerical Parity Gate
+    needs: lint-and-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy torch scikit-learn pytest
+
+      - name: Run Pytest Suite
+        run: |
+          cd research
+          pytest -q -p no:cacheprovider tests
+
+      - name: Verify SFE-GAT Stage Parity
+        run: |
+          node research/tests/js/eeg/eeg_parity.js
+
+  # -------------------------------------------------------------
+  # Gate 4: Automated Headless Browser Selftest (Full System Validation)
+  # -------------------------------------------------------------
+  headless-browser-selftest:
+    name: Headless Browser In-Page Selftest
+    needs: [node-and-kg-tests, python-and-parity]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Node In-Page Cases
+        run: |
+          node research/tests/js/run_node.js cases
+
+  # -------------------------------------------------------------
+  # Gate 5: Continuous Deployment (Artifact Packaging)
+  # -------------------------------------------------------------
+  deploy-bundle:
+    name: Package Offline Assistive Prototype
+    needs: [headless-browser-selftest]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Archive Web Prototype
+        uses: actions/upload-artifact@v4
+        with:
+          name: silentassist-poc-offline-bundle
+          path: POC/

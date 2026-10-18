@@ -1,0 +1,79 @@
+/* SilentAssist — design tokens (ADR 0005 D31–D34). Clinical-calm dark theme. All colours/spacing live here. Owner: UI. */
+:root {
+  /* Surfaces */
+  --bg-page: #0E1318;
+  --bg-surface: #18202A;
+  --bg-raised: #212B37;
+  --bg-rail: #121920;
+  --bg-harness: #1A1712;
+  --surface-focus: #2A2410;
+  /* Text */
+  --text: #E9EEF3;
+  --text-muted: #AEB9C5;
+  --text-subtle: #8C98A6;
+  /* Lines */
+  --border: #6E7D8F;
+  --focus-ring: #FFC94D;
+  --on-focus: #0E1318;
+  --harness-edge: #A08C5C;
+  /* Semantic (always with glyph + text) */
+  --ok: #7DDB98;
+  --warn: #FF9F68;
+  --danger: #FF9C9C;
+  --info: #6CC8E4;
+  --care: #C3A8FF;
+
+  /* Typography (system stacks only — no web fonts) */
+  --font-ui: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+  --fs-screen-title: 32px;
+  --fs-card-title: 28px;
+  --fs-card-sub: 20px;
+  --fs-body: 20px;
+  --fs-marker: 20px;
+  --fs-caption: 22px;
+  --fs-hero-transition: 36px;
+  --fs-pill-readme: 20px;
+  --fs-pill-meta: 16px;
+  --fs-panel: 16px;
+  --fs-panel-value: 18px;
+  --fs-dashboard: 16px;
+  --fs-harness: 14px;
+  --fs-code: 14px;
+  --lh-title: 1.2;
+  --lh-body: 1.4;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  /* Shape */
+  --r-card: 16px;
+  --r-panel: 12px;
+  --r-pill: 999px;
+  /* Focus */
+  --focus-width: 6px;
+  --focus-offset: 4px;
+  --focus-scale: 1.04;
+  /* Layout */
+  --card-gap: 24px;
+  --listbox-pad: 20px;
+  --target-min: 44px;
+  --topbar-h: 56px;
+  --rail-w: 480px;
+  --rail-w-large: 440px;
+  --card-min-h: 148px;
+  --graph-w: 232px;
+  --graph-h: 220px;
+  --harness-compact-h: 76px;
+  /* Motion */
+  --dur-focus: 120ms;
+  --dur-evo-step: 700ms;
+  --radar-period: 2000ms;
+}
+@media (max-height: 700px) { :root { --card-min-h: 128px; } }
+@media (min-width: 1800px) and (min-height: 900px) { :root { --card-min-h: 180px; } }

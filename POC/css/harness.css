@@ -1,0 +1,29 @@
+/* SilentAssist — Operator Harness dock (ADR 0005 D26). In flow, never overlays. Owner: UI. */
+#sa-harness {
+  background: var(--bg-harness); border-top: 2px dashed var(--harness-edge); color: var(--text);
+  font-size: var(--fs-harness); padding: var(--sp-1) var(--sp-4) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-1);
+}
+.hz-label { font-size: 11px; line-height: 1.2; text-transform: uppercase; letter-spacing: .08em; color: var(--harness-edge); font-weight: 700; }
+.hz-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); }
+.hz-btn {
+  min-height: 32px; padding: 0 var(--sp-2); border-radius: 8px; border: 1px solid var(--harness-edge);
+  background: var(--bg-raised); color: var(--text); font-size: var(--fs-harness); font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.hz-btn:hover { border-color: var(--focus-ring); }
+.hz-btn:disabled { opacity: .5; cursor: not-allowed; }
+#hz-noerrp.is-live { border-color: var(--ok); color: var(--ok); }
+#hz-simerrp.is-live { border-color: var(--danger); color: var(--danger); }
+#hz-reset { border-color: var(--warn); }
+.hz-sep { width: 1px; align-self: stretch; background: var(--harness-edge); margin: 0 var(--sp-1); }
+.hz-field, .hz-toggle, .hz-slider { display: inline-flex; align-items: center; gap: var(--sp-1); color: var(--text-muted); white-space: nowrap; }
+.hz-field select { background: var(--bg-raised); border: 1px solid var(--harness-edge); border-radius: 6px; padding: 4px 6px; color: var(--text); max-width: 320px; }
+.hz-slider input[type=range] { width: 120px; accent-color: var(--focus-ring); }
+.hz-val { min-width: 3.2em; color: var(--text); font-variant-numeric: tabular-nums; }
+.hz-cap { color: var(--text-subtle); font-size: 12px; }
+.hz-toggle input { accent-color: var(--focus-ring); width: 16px; height: 16px; }
+.hz-row-meta { justify-content: space-between; font-size: 13px; }
+.hz-strip { color: var(--text); font-family: var(--font-mono); font-size: 13px; }
+.hz-strip[data-kind="ok"] { color: var(--ok); }
+.hz-strip[data-kind="warn"] { color: var(--warn); }
+.hz-dataline { color: var(--text-subtle); }
+.hz-expanded { padding-top: var(--sp-1); border-top: 1px solid rgba(160, 140, 92, .35); }

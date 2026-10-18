@@ -1,0 +1,31 @@
+/* SilentAssist — per-screen rules (ADR 0005 D23) and the S5 result. Owner: UI. */
+#sa-screen-title { font-size: var(--fs-screen-title); line-height: var(--lh-title); font-weight: 600; padding: 0 var(--listbox-pad); }
+#sa-app[data-screen="S4"] .sa-card, #sa-app[data-screen="S6"] .sa-card { min-height: 120px; }
+/* Stage stack order (ADR 0005 D23); on S5 the result sits above the outcome cards */
+#sa-screen-title { order: 0; } #sa-alert { order: 1; } #sa-observation { order: 2; } #sa-result { order: 3; }
+#sa-listbox { order: 4; } #sa-position { order: 5; } #sa-status { order: 7; }
+#sa-app[data-screen="S5"][data-substate="outcome"] #sa-alert { display: none; }
+#sa-app[data-screen="S5"] .sa-card { min-height: 112px; }
+/* S5 result */
+#sa-result {
+  display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4) var(--listbox-pad);
+  background: var(--bg-raised); border-radius: var(--r-card); margin: 0 var(--listbox-pad);
+}
+#sa-result-errp { order: 0; font-size: 24px; font-weight: 600; color: var(--danger); }
+#sa-result-errp::before { content: "⚠ "; }
+#sa-result-transition { font-size: var(--fs-hero-transition); order: 1; font-weight: 600; line-height: 1.2; }
+#sa-result-transition.is-animating .sa-transition-line { animation: sa-pulse 1.2s ease-in-out 2; }
+@keyframes sa-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+#sa-result-status { order: 2; display: flex; align-items: center; gap: var(--sp-4); font-size: 26px; font-weight: 600; }
+#sa-result-status[data-kind="ok"] { color: var(--ok); }
+#sa-result-status[data-kind="ok"] .sa-status-text::before { content: "✓ "; }
+#sa-result-status[data-kind="danger"] { color: var(--danger); }
+#sa-result-status[data-kind="danger"] .sa-status-text::before { content: "↺ "; }
+#sa-result-status[data-kind="warn"] { color: var(--warn); }
+#sa-result-status[data-kind="warn"] .sa-status-text::before { content: "⚑ "; }
+#sa-result-status[data-kind="info"] { color: var(--info); }
+.sa-result-note { font-family: var(--font-mono); font-size: 18px; color: var(--warn); }
+#sa-result-alt { order: 4; font-size: 24px; }
+.sa-result-note { order: 3; }
+#sa-result-alt strong { color: var(--focus-ring); }
+#sa-app.is-locked #sa-listbox .sa-card:not(.is-focused) { opacity: .8; }

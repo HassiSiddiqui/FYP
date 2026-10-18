@@ -1,0 +1,127 @@
+ye <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SilentAssist — Interactive FYP-I Prototype</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/harness.css">
+  <link rel="stylesheet" href="css/caregiver.css">
+</head>
+<body>
+<div id="sa-app" data-screen="S1">
+  <header id="sa-topbar">
+    <span id="sa-title">SilentAssist</span>
+    <span id="pill-eeg" class="sa-pill">EEG: Simulation Mode</span>
+    <span id="pill-env" class="sa-pill">Environment: Smart-Home Simulator</span>
+    <span id="pill-decoder" class="sa-pill sa-pill-meta"></span>
+    <span id="pill-voice" class="sa-pill sa-pill-meta"></span>
+    <button id="btn-caregiver" type="button" tabindex="-1" aria-pressed="false">Caregiver Dashboard</button>
+  </header>
+  <main id="sa-main">
+    <section id="sa-stage" aria-label="Patient screen">
+      <h1 id="sa-screen-title"></h1>
+      <div id="sa-alert" role="alert"></div>
+      <div id="sa-observation" hidden></div>
+      <div id="sa-listbox" role="listbox" tabindex="0" aria-orientation="horizontal"></div>
+      <div id="sa-position"></div>
+      <div id="sa-result" hidden></div>
+      <div id="sa-dialog" role="dialog" aria-modal="true" hidden></div>
+      <div id="sa-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    </section>
+    <aside id="sa-rail" aria-label="CogLign context reasoning">
+      <section id="sa-coglign"></section>
+      <section id="sa-graphs"><div id="sa-kg-view"></div><div id="sa-brain-view"></div></section>
+    </aside>
+    <section id="sa-caregiver" hidden aria-label="Caregiver Supervision Dashboard"></section>
+  </main>
+  <footer id="sa-harness" aria-label="Operator Harness — not patient-facing"></footer>
+</div>
+<pre id="selftest-report" hidden></pre>
+<!-- scripts: docs/architecture.md §1.1 order (classic scripts; file:// safe; no modules) -->
+<script src="js/core/namespace.js"></script>
+<script src="js/config/initial-state.js"></script>
+<script src="js/config/ui.js"></script>
+<script src="js/config/kg.js"></script>
+<script src="js/config/policy.js"></script>
+<script src="js/config/safety.js"></script>
+<script src="js/config/errp.js"></script>
+<script src="js/config/eeg.js"></script>
+<script src="js/core/bus.js"></script>
+<script src="js/core/store.js"></script>
+<script src="js/core/clock.js"></script>
+<script src="js/core/b64.js"></script>
+<script src="js/core/reset.js"></script>
+<script src="js/data/montage-data.js"></script>
+<script src="js/data/sfegat-weights.js"></script>
+<script src="js/data/mi-replay.js"></script>
+<script src="js/data/errp-model.js"></script>
+<script src="js/data/errp-replay.js"></script>
+<script src="js/dsp/fft.js"></script>
+<script src="js/dsp/butterworth.js"></script>
+<script src="js/dsp/sosfilt.js"></script>
+<script src="js/dsp/welch.js"></script>
+<script src="js/dsp/hilbert.js"></script>
+<script src="js/dsp/integrate.js"></script>
+<script src="js/eeg/tensor.js"></script>
+<script src="js/eeg/plv.js"></script>
+<script src="js/eeg/graph.js"></script>
+<script src="js/eeg/psd-features.js"></script>
+<script src="js/eeg/gatv2.js"></script>
+<script src="js/eeg/gcn.js"></script>
+<script src="js/eeg/batchnorm.js"></script>
+<script src="js/eeg/gae.js"></script>
+<script src="js/eeg/sfegat.js"></script>
+<script src="js/eeg/synth.js"></script>
+<script src="js/eeg/decoder.js"></script>
+<script src="js/errp/features.js"></script>
+<script src="js/errp/classifier.js"></script>
+<script src="js/errp/detector.js"></script>
+<script src="js/errp/memory.js"></script>
+<script src="js/errp/synth.js"></script>
+<script src="js/kg/ontology.js"></script>
+<script src="js/kg/turtle.js"></script>
+<script src="js/kg/triplestore.js"></script>
+<script src="js/kg/sparql.js"></script>
+<script src="js/kg/resolver.js"></script>
+<script src="js/kg/mirror.js"></script>
+<script src="js/kg/kg-view.js"></script>
+<script src="js/brain/montage.js"></script>
+<script src="js/brain/brain-graph-view.js"></script>
+<script src="js/policy/risk.js"></script>
+<script src="js/policy/policy.js"></script>
+<script src="js/safety/audit.js"></script>
+<script src="js/safety/rollback.js"></script>
+<script src="js/safety/approvals.js"></script>
+<script src="js/safety/episode.js"></script>
+<script src="js/voice/speech.js"></script>
+<script src="js/input/tokenbus.js"></script>
+<script src="js/input/keyboard.js"></script>
+<script src="js/ui/format.js"></script>
+<script src="js/ui/screens.js"></script>
+<script src="js/ui/render.js"></script>
+<script src="js/ui/navigator.js"></script>
+<script src="js/ui/components/pills.js"></script>
+<script src="js/ui/components/listbox.js"></script>
+<script src="js/ui/components/coglign-panel.js"></script>
+<script src="js/ui/components/caption.js"></script>
+<script src="js/ui/components/observation.js"></script>
+<script src="js/ui/harness.js"></script>
+<script src="js/ui/caregiver/dashboard.js"></script>
+<script src="js/ui/caregiver/queue.js"></script>
+<script src="js/ui/caregiver/gauges.js"></script>
+<script src="js/ui/caregiver/shadow-table.js"></script>
+<script src="js/ui/caregiver/audit-view.js"></script>
+<script src="js/selftest/selftest.js"></script>
+<script src="js/selftest/cases/core.js"></script>
+<script src="js/selftest/cases/ui.js"></script>
+<script src="js/selftest/cases/viz.js"></script>
+<script src="js/selftest/cases/kg.js"></script>
+<script src="js/selftest/cases/safety.js"></script>
+<script src="js/selftest/cases/eeg.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

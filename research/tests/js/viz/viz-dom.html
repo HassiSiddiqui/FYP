@@ -1,0 +1,156 @@
+<!doctype html>
+<!-- VIZ DOM harness (headless Edge, file://). Loads real core + config + safety/audit + the VIZ files,
+     plays the bus events the other modules would emit, and checks the rendered DOM.
+     Run: research/tests/js/viz/run_viz_dom.py  (prints the JSON report; exit 1 on failure). -->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIZ DOM harness</title>
+<link rel="stylesheet" href="../../../../POC/css/tokens.css">
+<link rel="stylesheet" href="../../../../POC/css/caregiver.css">
+<style>body{background:#0E1318;color:#E9EEF3;margin:0} #sa-main{display:grid;grid-template-columns:1fr 480px}
+#sa-graphs{display:grid;grid-template-columns:1fr 1fr;gap:16px} #sa-graphs > div{height:300px}</style>
+</head>
+<body>
+<div id="sa-app"><main id="sa-main">
+  <section id="sa-stage">stage</section>
+  <aside id="sa-rail"><section id="sa-graphs"><div id="sa-kg-view"></div><div id="sa-brain-view"></div></section></aside>
+  <section id="sa-caregiver" hidden aria-label="Caregiver Supervision Dashboard"></section>
+</main></div>
+<pre id="out">running</pre>
+<script src="../../../../POC/js/core/namespace.js"></script>
+<script src="../../../../POC/js/config/initial-state.js"></script>
+<script src="../../../../POC/js/config/ui.js"></script>
+<script src="../../../../POC/js/config/kg.js"></script>
+<script src="../../../../POC/js/config/safety.js"></script>
+<script src="../../../../POC/js/config/errp.js"></script>
+<script src="../../../../POC/js/core/bus.js"></script>
+<script src="../../../../POC/js/core/store.js"></script>
+<script src="../../../../POC/js/core/clock.js"></script>
+<script src="../../../../POC/js/data/errp-model.js"></script>
+<script src="../../../../POC/js/data/montage-data.js"></script>
+<script src="../../../../POC/js/safety/audit.js"></script>
+<script src="../../../../POC/js/ui/format.js"></script>
+<script src="../../../../POC/js/kg/kg-view.js"></script>
+<script src="../../../../POC/js/brain/montage.js"></script>
+<script src="../../../../POC/js/brain/brain-graph-view.js"></script>
+<script src="../../../../POC/js/ui/caregiver/dashboard.js"></script>
+<script src="../../../../POC/js/ui/caregiver/queue.js"></script>
+<script src="../../../../POC/js/ui/caregiver/gauges.js"></script>
+<script src="../../../../POC/js/ui/caregiver/shadow-table.js"></script>
+<script src="../../../../POC/js/ui/caregiver/audit-view.js"></script>
+<script>
+(function () {
+  'use strict';
+  var checks = [], SA = window.SA, errs = [];
+  window.addEventListener('error', function (e) { errs.push(String(e.message)); });
+  function ok(id, cond, detail) { checks.push({ id: id, ok: !!cond, detail: detail === undefined ? '' : String(detail) }); }
+  function q(s) { return document.querySelector(s); }
+  function qa(s) { return document.querySelectorAll(s); }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function until(fn, ms) {
+    var t0 = Date.now();
+    return new Promise(function (res) { (function poll() { if (fn() || Date.now() - t0 > ms) res(fn()); else setTimeout(poll, 20); })(); });
+  }
+  function finish() {
+    var fail = checks.filter(function (c) { return !c.ok; }).length;
+    if (errs.length) { checks.push({ id: 'no-window-errors', ok: false, detail: errs.join(' | ') }); fail++; }
+    q('#out').textContent = JSON.stringify({ pass: checks.length - fail, fail: fail, checks: checks }, null, 1) + '\nVIZ-DOM-DONE pass=' + (checks.length - fail) + ' fail=' + fail;
+  }
+  async function run() {
+    SA.store.reset();
+    if (SA.safety && SA.safety.audit) SA.safety.audit.init();
+    SA.kg.view.init(); SA.brain.view.init(); SA.ui.caregiver.init();
+    ok('montage-source', true, SA.brain.montage.source() + (SA.brain.montage.isSchematic() ? ' (schematic)' : ''));
+
+    // --- brain: static scripted montage
+    ok('brain-22', qa('#sa-brain-view .bv-electrode').length === 22, qa('#sa-brain-view .bv-electrode').length);
+    var keys = Array.prototype.map.call(qa('#sa-brain-view .bv-key'), function (e) { return e.getAttribute('data-name'); }).join(',');
+    ok('brain-fcz-cz-ringed', keys === 'FCz,Cz' && qa('#sa-brain-view .bv-key-ring').length === 2, keys);
+    ok('brain-scripted-caption', q('#sa-brain-view .bv-caption').textContent.indexOf(SA.brain.view.captions.scripted) === 0, q('#sa-brain-view .bv-caption').textContent);
+    ok('brain-no-edges-scripted', qa('#sa-brain-view .bv-edge').length === 0);
+
+    // --- brain: decoded trial animates evo0 -> evo3 (canned trace stands in for eeg/decoder)
+    var tr = SA.brain.view.cannedTrace(), d = SA.brain.view.diffSteps(tr.graphs);
+    SA.bus.emit('eeg:decoded', { token: 'SELECT', cls: 'feet', decoded: true, mode: 'replay', graphs: tr.graphs, edgeCounts: tr.edgeCounts,
+      preliminary: true, stub: true, trial: { id: 'A01E-t017', trueCls: 'feet' } });
+    ok('brain-evo0-edges', qa('#sa-brain-view .bv-edge').length === d[0].kept.length, qa('#sa-brain-view .bv-edge').length + ' vs ' + d[0].kept.length);
+    ok('brain-stub-badge', q('#sa-brain-view .bv-badge').textContent.indexOf('STUB DATA — not model output') >= 0, q('#sa-brain-view .bv-badge').textContent);
+    ok('brain-model-caption', q('#sa-brain-view .bv-caption').textContent.indexOf("Edges kept by the model's evolution mask (GAE untrained under the paper's CE-only loss) — model behaviour, not neurophysiology") === 0);
+    await until(function () { return SA.brain.view.state().step === 3; }, 4000);
+    ok('brain-reaches-evo3', SA.brain.view.state().step === 3, SA.brain.view.state().step);
+    ok('brain-evo3-edges', qa('#sa-brain-view .bv-edge').length === d[3].kept.length && qa('#sa-brain-view .bv-edge-removed').length === d[3].removed.length,
+      qa('#sa-brain-view .bv-edge').length + '/' + qa('#sa-brain-view .bv-edge-removed').length);
+    var chipTxt = Array.prototype.map.call(qa('#sa-brain-view .bv-chip-n'), function (e) { return e.textContent; }).join(',');
+    ok('brain-chip-counts', chipTxt === tr.edgeCounts.join(','), chipTxt);
+    ok('brain-active-chip', q('#sa-brain-view .bv-chip.is-active').getAttribute('data-step') === '3');
+    SA.bus.emit('errp:observeStart', { episodeId: 'ep-1', durationMs: 60000 });
+    ok('brain-radar-on', !!q('#sa-brain-view .bv-card.is-radar'));
+    SA.bus.emit('errp:observed', { decision: 'keep', q: 0.1 });
+    ok('brain-radar-off', !q('#sa-brain-view .bv-card.is-radar'));
+
+    // --- KG view: canonical resolve
+    ok('kg-initial', qa('#sa-kg-view .kv-device').length === 3, qa('#sa-kg-view .kv-device').length);
+    SA.bus.emit('kg:resolved', { episodeId: 'ep-1', kind: 'device', command: 'TurnOn', intentLabel: 'Turn On Light',
+      actedOn: { id: 'BedroomCeilingLight', iri: ':BedroomCeilingLight', label: 'Bedroom Ceiling Light', score: 0.94 },
+      ranked: [{ id: 'BedroomCeilingLight', label: 'Bedroom Ceiling Light', score: 0.94, scorePenalised: 0.94, modifiers: { errpMemory: 1 } },
+        { id: 'BedsideLamp', label: 'Bedside Lamp', score: 0.88, scorePenalised: 0.88, modifiers: { errpMemory: 1 } },
+        { id: 'LivingRoomLight', label: 'Living Room Light', score: 0.38, scorePenalised: 0.38, modifiers: { errpMemory: 1 } }] });
+    var w = q('#sa-kg-view .kv-device.is-winner'), r = q('#sa-kg-view .kv-device.is-runner');
+    ok('kg-winner', w && w.getAttribute('data-node') === 'BedroomCeilingLight' && w.textContent.indexOf('1st · 0.94') >= 0, w && w.textContent);
+    ok('kg-runner-up', r && r.getAttribute('data-node') === 'BedsideLamp' && r.textContent.indexOf('2nd · 0.88') >= 0, r && r.textContent);
+    ok('kg-third', q('#sa-kg-view [data-node="LivingRoomLight"]').textContent.indexOf('3rd · 0.38') >= 0);
+    ok('kg-intent', q('#sa-kg-view .kv-intent').textContent === 'Turn On Light');
+    ok('kg-node-count', qa('#sa-kg-view .kv-node').length <= 8, qa('#sa-kg-view .kv-node').length);
+    ok('kg-ring-widths', getComputedStyle(q('#sa-kg-view .is-winner .kv-ring')).strokeWidth === '4px' &&
+      getComputedStyle(q('#sa-kg-view .is-runner .kv-ring')).strokeDasharray !== 'none',
+      getComputedStyle(q('#sa-kg-view .is-winner .kv-ring')).strokeWidth);
+
+    // --- caregiver dashboard
+    if (SA.safety && SA.safety.audit) {
+      await SA.safety.audit.append('BOOT', { version: SA.version }, 'system');
+      await SA.safety.audit.append('TOKEN', { cls: 'feet' }, 'patient');
+      await SA.safety.audit.append('EXECUTE', { deviceId: 'BedroomCeilingLight' }, 'patient');
+    }
+    var approved = null;
+    SA.bus.on('caregiver:approve', function (p) { approved = p; });
+    SA.store.set('ui.dashboardOpen', true, 'ui');
+    SA.bus.emit('ui:dashboardToggled', { open: true });
+    ok('cv-visible', q('#sa-caregiver').hidden === false);
+    ok('cv-stage-hidden', getComputedStyle(q('#sa-stage')).display === 'none' && getComputedStyle(q('#sa-rail')).display === 'none');
+    ok('cv-banner', q('#cv-banner').textContent === 'Caregiver view — simulated, no authentication');
+    ok('cv-brain-22', qa('#cv-brain .bv-electrode').length === 22, qa('#cv-brain .bv-electrode').length);
+    ok('cv-shadow-6', qa('#cv-shadow tbody tr').length === 6);
+    var ap = q('button.cv-approve[data-approval-id="ap-seed-1"]');
+    ok('cv-approve-bracketed', ap && getComputedStyle(ap, '::before').content === '"["' && ap.textContent === 'Approve', ap && getComputedStyle(ap, '::before').content);
+    ok('cv-target-min', ap && ap.getBoundingClientRect().height >= 44, ap && ap.getBoundingClientRect().height);
+    ap.click();
+    ok('cv-approve-emits', approved && approved.approvalId === 'ap-seed-1', JSON.stringify(approved));
+    if (SA.safety && SA.safety.audit) {
+      await until(function () { return /Chain verified ✓ \(SHA-256\)|FNV-1a/.test(q('#cv-audit-badge').textContent); }, 3000);
+      ok('cv-audit-verified', /^Chain verified ✓ \((SHA-256|FNV-1a)/.test(q('#cv-audit-badge').textContent), q('#cv-audit-badge').textContent);
+      ok('cv-audit-rows', qa('#cv-audit-list tbody tr').length === 3, qa('#cv-audit-list tbody tr').length);
+      var head = SA.safety.audit.head();
+      ok('cv-audit-head', q('#cv-audit-head').textContent === 'head ' + head.hash.slice(0, 12) + ' • seq ' + head.seq, q('#cv-audit-head').textContent);
+      q('#cv-tamper').click();
+      await until(function () { return /broken/.test(q('#cv-audit-badge').textContent); }, 3000);
+      ok('cv-tamper-detected', /Chain broken at seq 2/.test(q('#cv-audit-badge').textContent) && !!q('#cv-audit-list tr.is-broken'), q('#cv-audit-badge').textContent);
+    } else ok('cv-audit-skipped', true, 'safety/audit.js not present');
+    // live shadow sync
+    var dev = SA.store.get('devices.BedroomCeilingLight'); dev.power = 'on';
+    SA.bus.emit('device:stateChanged', { deviceId: 'BedroomCeilingLight', before: {}, after: dev, cause: 'execute' });
+    SA.store.set('devices.BedroomCeilingLight', dev, 'rollback');
+    await wait(60);
+    var row = q('#cv-shadow tr[data-device-id="BedroomCeilingLight"]');
+    ok('cv-shadow-live', row && row.textContent.indexOf('ON • 100%') >= 0 && row.textContent.indexOf('21:00') >= 0, row && row.textContent);
+    // reduced motion: transitions zeroed
+    document.documentElement.setAttribute('data-reduced-motion', 'true');
+    ok('reduced-motion', getComputedStyle(q('.cv-bar-fill')).transitionDuration === '0s', getComputedStyle(q('.cv-bar-fill')).transitionDuration);
+    document.documentElement.removeAttribute('data-reduced-motion');
+    finish();
+  }
+  window.addEventListener('DOMContentLoaded', function () { run().catch(function (e) { errs.push('run: ' + e.stack); finish(); }); });
+})();
+</script>
+</body>
+</html>

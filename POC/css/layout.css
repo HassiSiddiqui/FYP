@@ -1,0 +1,79 @@
+/* SilentAssist — shell layout and tiers (ADR 0005 D21–D23). Owner: UI. */
+#sa-app {
+  display: grid; grid-template-rows: minmax(var(--topbar-h), auto) minmax(0, 1fr) auto;   /* RT1-07: bar may wrap to 2 rows */
+  height: 100vh; min-height: 0; grid-template-columns: minmax(0, 1fr); width: 100%;
+}
+/* Top bar */
+#sa-topbar {
+  display: flex; align-items: center; gap: var(--sp-2); padding: 0 var(--sp-3);
+  background: var(--bg-raised); border-bottom: 1px solid var(--border); min-width: 0; white-space: nowrap; overflow: hidden;
+  flex-wrap: wrap; row-gap: 4px; padding-top: 4px; padding-bottom: 4px;   /* RT1-07: wrap instead of clipping in Replay at 1280/1366 */
+}
+#sa-topbar > * { flex: 0 0 auto; }
+#sa-title { font-size: 20px; font-weight: 700; letter-spacing: .01em; margin-right: var(--sp-2); }
+#sa-title::before { content: "◉ "; color: var(--focus-ring); }
+.sa-pill {
+  display: inline-flex; align-items: center; padding: 2px var(--sp-3); border-radius: var(--r-pill);
+  border: 1px solid var(--border); background: var(--bg-surface); white-space: nowrap;
+  font-size: var(--fs-pill-readme); font-weight: 600;
+}
+.sa-pill-meta { font-size: var(--fs-pill-meta); color: var(--text-muted); }
+#pill-eeg::before { content: "● "; color: var(--info); }
+#pill-env::before { content: "⌂ "; color: var(--ok); }
+#pill-decoder { min-width: max-content; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; display: inline-block; line-height: 1.6; }
+#pill-voice { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; display: inline-block; line-height: 1.6; }
+#pill-decoder.is-prelim { border-color: var(--warn); }
+#pill-voice:empty, #pill-decoder:empty { display: none; }
+#btn-caregiver {
+  margin-left: auto; min-height: var(--target-min); padding: 0 var(--sp-4); border-radius: var(--r-pill);
+  border: 2px solid var(--care); background: transparent; color: var(--text); font-size: var(--fs-pill-meta); font-weight: 600; cursor: pointer;
+}
+#btn-caregiver::before { content: "⚑ "; color: var(--care); }
+#btn-caregiver[aria-pressed="true"] { background: var(--care); color: var(--on-focus); }
+#btn-caregiver[aria-pressed="true"]::before { color: var(--on-focus); }
+
+/* Main: Standard tier (default) */
+#sa-main {
+  display: grid; grid-template-columns: minmax(0, 1fr) var(--rail-w); gap: var(--sp-4); padding: var(--sp-4);
+  min-height: 0;
+}
+#sa-stage {
+  display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; min-height: 0;
+  padding: var(--sp-2) var(--sp-2); overflow-y: auto; position: relative;
+}
+#sa-rail {
+  display: flex; flex-direction: column; gap: var(--sp-3); min-height: 0; min-width: 0;
+  background: var(--bg-rail); border: 1px solid var(--border); border-radius: var(--r-panel); padding: var(--sp-3);
+}
+#sa-coglign { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: var(--sp-3); }
+#sa-graphs { display: flex; gap: var(--sp-3); flex: 0 0 auto; justify-content: space-between; }
+#sa-kg-view, #sa-brain-view {
+  width: var(--graph-w); height: var(--graph-h); flex: 1 1 var(--graph-w); min-width: 0;
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--r-panel); position: relative;
+}
+#sa-kg-view > svg, #sa-brain-view > svg { width: 100%; height: 100%; display: block; }
+
+/* Caregiver overlay replaces stage + rail; dock stays */
+#sa-caregiver { grid-column: 1 / -1; min-height: 0; overflow-y: auto; }
+#sa-app[data-dashboard="open"] #sa-stage, #sa-app[data-dashboard="open"] #sa-rail { display: none; }
+
+/* Large tier */
+@media (min-width: 1800px) and (min-height: 900px) {
+  #sa-main { grid-template-columns: minmax(0, 1fr) var(--rail-w-large) var(--rail-w-large); }
+  #sa-rail { display: contents; }
+  #sa-coglign, #sa-graphs {
+    background: var(--bg-rail); border: 1px solid var(--border); border-radius: var(--r-panel); padding: var(--sp-3); min-height: 0;
+  }
+  #sa-graphs { flex-direction: column; }
+  #sa-kg-view, #sa-brain-view { width: 100%; height: auto; flex: 1 1 50%; }
+  #cl-sparql > summary { display: none; }
+  #cl-sparql-text { max-height: 120px; }
+}
+/* Narrow tier */
+@media (max-width: 1279px), (max-height: 599px) {
+  #sa-app { height: auto; min-height: 100vh; }
+  #sa-main { grid-template-columns: minmax(0, 1fr); }
+  #sa-stage { overflow: visible; }
+  #sa-graphs { flex-wrap: wrap; }
+  #sa-harness #hz-expanded { display: none; }
+}

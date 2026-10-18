@@ -1,0 +1,53 @@
+# Small fixture for the KG engine tests: 3 lights in 2 rooms.
+# Deliberately mixes @prefix and PREFIX, comments, ';' and ',' lists,
+# typed / language-tagged / numeric / boolean literals and blank nodes.
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+PREFIX saref: <https://saref.etsi.org/core/>
+PREFIX bot:   <https://w3id.org/bot#>
+@prefix sa:    <https://silentassist.example/ns#> .
+@prefix :      <https://silentassist.example/home#> .
+
+# ---- schema (materialised by the store when rdfs is on)
+saref:Actuator  rdfs:subClassOf saref:Device .
+sa:Light        rdfs:subClassOf saref:Actuator ; rdfs:label "Light" .
+sa:CeilingLight rdfs:subClassOf sa:Light .
+sa:Lamp         rdfs:subClassOf sa:Light .
+sa:hasCeilingLight rdfs:subPropertyOf bot:containsElement .
+
+# ---- rooms
+:MasterBedroom a bot:Space ;
+    rdfs:label "Master Bedroom"@en , "Schlafzimmer"@de ;
+    sa:floorArea 14.5 ;
+    sa:hasCeilingLight :BedroomCeilingLight ;
+    bot:containsElement :BedsideLamp .
+
+:LivingRoom a bot:Space ;
+    rdfs:label "Living Room"@en ;
+    sa:floorArea "22.0"^^xsd:decimal ;
+    sa:hasCeilingLight :LivingRoomLight .   # trailing comment
+
+# ---- lights
+:BedroomCeilingLight a sa:CeilingLight ;
+    rdfs:label "Bedroom Ceiling Light" ;
+    sa:displayOrder 1 ; sa:isOn false ; sa:brightness 0 ;
+    sa:wattage 12.5e0 ;
+    sa:lastChanged "2026-03-01T20:00:00"^^xsd:dateTime ;
+    sa:spec [ sa:lumens 1600 ; sa:colourTemp 3000 ] .
+
+:BedsideLamp a sa:Lamp ;
+    rdfs:label "Bedside Lamp" ;
+    sa:displayOrder 2 ; sa:isOn false ; sa:brightness 40 ;
+    sa:lastChanged "2026-03-01T21:30:00"^^xsd:dateTime ;
+    .
+
+<https://silentassist.example/home#LivingRoomLight> rdf:type sa:CeilingLight ;
+    rdfs:label "Living Room Light" ;
+    sa:displayOrder 3 ; sa:isOn true ; sa:brightness 80 ; sa:wattage 18 ;
+    sa:note 'single "quoted" with\ttab' ;
+    rdfs:comment """multi-line
+comment with "quotes" """ .
+
+:Patient sa:activeRoom :MasterBedroom .
+_:hub sa:controls :BedroomCeilingLight , :BedsideLamp , :LivingRoomLight .

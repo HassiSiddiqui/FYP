@@ -1,0 +1,57 @@
+# ErrP detector config (ADR 0002). Owner: ErrP trainer.
+plan: B
+preliminary: true
+seed: 0
+data_dir: data/bnci2015_013
+subjects: [1, 2, 3, 4, 5, 6]
+events:
+  correct: [5, 10]
+  error: [6, 9]
+fs: 512
+epoch:
+  tmin_s: -1.0
+  n_samples: 922
+  event_index: 512
+filter:
+  order: 4
+  band: [1.0, 10.0]
+  causal: true
+baseline: [410, 512]
+reference: CAR64
+features:
+  channels: [Fz, FC1, FCz, FC2, C1, Cz, C2, CPz]
+  win_start_s: 0.20
+  win_step_s: 0.05
+  win_len: 51
+  n_windows: 9
+classifier:
+  solver: lsqr
+  shrinkage: auto
+calibration:
+  platt_C: 1000000.0
+permutations: 1000
+deploy:
+  eligible: [1, 3, 5, 6]
+  ineligible_reason:
+    2: "S2 viewed during design (exploratory probe)"
+    4: "S2 viewed during design (exploratory probe)"
+  scanned_codes_only:
+    - "S01 s1: event codes scanned only (no EEG)"
+    - "S05 s2: event codes scanned only (no EEG)"
+priors: [0.10, 0.181, 0.223, 0.334]
+canonical_pi: 0.181
+# Provisional ErrP cost table (ADR 0002 D13, light-select). Browser recomputes from SA.nav.
+costs:
+  light-select: {C_FP: 5, C_FN: 7, C_TP: 2.92}
+  preset: {C_FP: 5, C_FN: 15, C_TP: 3}
+synth:
+  n_seeds: 200
+  alpha_grid: [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]
+  sigma_ms: 30
+  ne_cap_uv: 4.1
+  pe_cap_uv: 8.0
+  target_fcz_min_uv: -8.4
+  pi_low: 0.10
+  pi_cor: 0.36
+  margin: 0.10
+  max_seed_search: 100000
