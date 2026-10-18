@@ -51,7 +51,7 @@
     \vspace*{0.5cm}
     
     % University Crest Placeholder
-    \includegraphics[width=0.25\textwidth]{figures/fast_logo.png}\\[1.5cm]
+    \IfFileExists{figures/fast_logo.png}{\includegraphics[width=0.25\textwidth]{figures/fast_logo.png}\\[1.5cm]}{\vspace*{1.5cm}}
     
     {\Large \textbf{NATIONAL UNIVERSITY OF COMPUTER AND EMERGING SCIENCES}}\\[0.3cm]
     {\large \textbf{FAST School of Computing --- Islamabad Campus}}\\[0.2cm]
@@ -247,7 +247,7 @@ Modern software engineering standards for mission-critical and medical-grade ass
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.88\textwidth]{figures/use_case_diagram.png}
+\includegraphics[width=0.90\textwidth]{figures/img1.png}
 \caption{Use-Case Diagram --- SilentAssist Closed-Loop System}
 \label{fig:use_case}
 \end{figure}
@@ -345,7 +345,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/architecture_diagram.png}
+\includegraphics[width=0.92\textwidth]{figures/img2.png}
 \caption{System Architecture Diagram --- 5-Tier Dual-Graph Closed Loop}
 \label{fig:arch}
 \end{figure}
@@ -364,7 +364,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.88\textwidth]{figures/activity_diagram.png}
+\includegraphics[width=0.95\textwidth]{figures/img3.png}
 \caption{Activity Diagram --- Intent Execution, Risk Gating, and ErrP Rollback Flow}
 \label{fig:activity}
 \end{figure}
@@ -376,7 +376,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/class_diagram.png}
+\includegraphics[width=0.72\textwidth]{figures/img4.png}
 \caption{Class Diagram --- SilentAssist Core Domain Model}
 \label{fig:class_diagram}
 \end{figure}
@@ -388,7 +388,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/sequence_diagram.png}
+\includegraphics[width=0.95\textwidth]{figures/img5.jpg}
 \caption{Sequence Diagram --- Closed-Loop Execution with ErrP Rollback and Caregiver Approval}
 \label{fig:sequence_diagram}
 \end{figure}
@@ -400,7 +400,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.90\textwidth]{figures/erd_diagram.png}
+\includegraphics[width=0.95\textwidth]{figures/img6.png}
 \caption{Entity-Relationship Diagram --- Smart Home Schema \& Semantic Triples}
 \label{fig:erd}
 \end{figure}
@@ -412,7 +412,7 @@ The core architecture enforces three foundational principles:
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.88\textwidth]{figures/deployment_diagram.png}
+\includegraphics[width=0.92\textwidth]{figures/img7.png}
 \caption{Deployment Diagram --- Infrastructure Nodes and Execution Environment}
 \label{fig:deployment}
 \end{figure}
@@ -590,7 +590,7 @@ The pipeline executes automatically upon all pushes and pull requests to \texttt
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=0.88\textwidth]{figures/cicd_pipeline.png}
+\includegraphics[width=0.92\textwidth]{figures/img8.png}
 \caption{Automated CI/CD Pipeline Flowchart --- GitHub Actions Workflow}
 \label{fig:cicd}
 \end{figure}
