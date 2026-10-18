@@ -1,0 +1,59 @@
+{
+  "config": {
+    "name": "planb-sd-p0",
+    "label": "PRELIMINARY (Plan B: 1 seed; LOSO deferred to Plan A)",
+    "seeds": [
+      0
+    ],
+    "features": {
+      "variant": "paper",
+      "log10": false
+    },
+    "graph": {
+      "tau": 0.3,
+      "eta": 0.5
+    },
+    "model": {
+      "dropout": 0.5,
+      "residual": false,
+      "gcn_edge_weight": true,
+      "evolve": true
+    },
+    "train": {
+      "lr": 0.01,
+      "momentum": 0.0,
+      "weight_decay": 0.001,
+      "batch_size": 64,
+      "epochs": 500
+    },
+    "deploy": {
+      "subject": 1
+    },
+    "loso": {
+      "train_sessions": [
+        "T"
+      ]
+    }
+  },
+  "args": {
+    "config": "configs/plan_b.yaml",
+    "only": "all",
+    "subjects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "workers": 4,
+    "tag": ""
+  },
+  "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "torch": "2.14.1+cpu",
+  "pyg": "2.8.0.post1",
+  "platform": "Windows-11-10.0.26200-SP0"
+}

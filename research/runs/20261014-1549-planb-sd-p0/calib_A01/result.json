@@ -1,0 +1,19 @@
+{
+  "kind": "calib",
+  "subject": 1,
+  "seed": 0,
+  "fold": 0,
+  "temperature": 8.01877157912298,
+  "calib_nll_before": 2.9272910854514467,
+  "calib_nll_after": 1.319940556140599,
+  "oof_accuracy": 0.375,
+  "test_E": {
+    "accuracy": 0.3194444444444444,
+    "precision_macro": 0.3211620469083155,
+    "f1_macro": 0.31962750492996717,
+    "kappa": 0.09259259259259256,
+    "n": 288
+  },
+  "note": "calibration fold model (216 train / 72 held out from T); E for information only",
+  "seconds": 1958.826059103012
+}

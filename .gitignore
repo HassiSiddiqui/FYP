@@ -24,7 +24,6 @@ research/data/
 research/.cache/pip/
 research/.cache/edge-profile/
 research/.cache/tmp/
-research/runs/
 *.log
 
 # OS & IDE Files
