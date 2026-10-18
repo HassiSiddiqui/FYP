@@ -11,6 +11,7 @@
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{xltabular}
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
@@ -84,16 +85,34 @@
 \begin{tabular}{@{}ll@{}}
 \textbf{Team Members:} & Ali Farqaleet \quad (22i-XXXX) \\
                        & Abdul Haseeb  \quad (22i-XXXX) \\
-                       & Issa Sultan   \quad (22i-XXXX) \\[0.6cm]
+                       & Issa Sultan   \quad (22i-XXXX) \\[0.4cm]
 \textbf{Supervisor:}   & Dr. Adil Majeed \\[0.4cm]
+\textbf{Program:}      & Bachelor of Science in Artificial Intelligence (BS AI) \\[0.4cm]
 \textbf{Session:}      & 2022--2026 \\[0.4cm]
 \textbf{Semester:}     & Fall 2026 (7th Semester / FYP-1) \\[0.4cm]
-\textbf{Evaluation:}   & FYP-1 Mid Supervisory Evaluation (Stage 1 / Form 2)
+\textbf{Evaluation:}   & FYP-1 Mid Supervisory Evaluation (Form 2 \& Form 3)
 \end{tabular}
+
+\vspace{1.0cm}
+\noindent
+\textbf{Supervisory Sign-Off \& Verification:}\\
+\small
+I have examined this FYP-1 Midterm Report along with the accompanying source code, live browser prototype, and automated CI/CD test evidence. I verify that the progress and technical claims accurately represent the engineering work completed by the student team.\\[0.8cm]
+\textbf{Supervisor Name:} Dr. Adil Majeed \hfill \textbf{Signature:} \underline{\hspace{4.5cm}} \hfill \textbf{Date:} \underline{\hspace{2.5cm}}
+
+\vspace{0.8cm}
+\noindent
+\textbf{Student Declaration of Authenticity:}\\
+\small
+We hereby certify that this report and all accompanying software, machine learning pipelines, and design artifacts represent our own authentic engineering contributions under academic supervision. All third-party libraries, datasets, and generative design aids have been fully and transparently disclosed in Section~4.7 in accordance with FAST-NUCES ethical standards.\\[0.6cm]
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}ccc@{}}
+\underline{\hspace{4cm}} & \underline{\hspace{4cm}} & \underline{\hspace{4cm}} \\
+Ali Farqaleet & Abdul Haseeb & Issa Sultan
+\end{tabular*}
 
 \vfill
 \begin{center}
-    \small \copyright\ 2026 SilentAssist Development Group. All rights reserved.
+    \footnotesize \copyright\ 2026 SilentAssist Development Group. FAST National University of Computer and Emerging Sciences, Islamabad Campus.
 \end{center}
 
 % ---------------------------------------------------------
@@ -116,6 +135,37 @@ By the Week 8 Midterm checkpoint, the team has delivered: (1) a complete subject
 \tableofcontents
 \listoffigures
 \listoftables
+
+% ---------------------------------------------------------
+% Panel Action Register (Form 10)
+% ---------------------------------------------------------
+\newpage
+\chapter*{Panel Action Register (Form 10)}
+\addcontentsline{toc}{chapter}{Panel Action Register (Form 10)}
+
+In strict compliance with Form 2 (Criterion 1) of the FAST-NUCES FYP Handbook, Table~\ref{tab:panel_actions} establishes the Panel Action Register (Form 10). It details every corrective directive issued by the faculty evaluation panel during the FYP-1 Proposal Defense, the precise architectural and code solution implemented by the team, the current resolution status, and verifiable live evidence links within the repository.
+
+\begin{table}[h!]
+\centering
+\small
+\caption{Form 10: Previous Proposal Defense Actions Addressed}
+\label{tab:panel_actions}
+\begin{tabularx}{\textwidth}{c p{3.6cm} c p{4.2cm} X}
+\toprule
+\textbf{No.} & \textbf{Panel Observation / Directive} & \textbf{Status} & \textbf{Architectural Resolution} & \textbf{Verifiable Code / Live Evidence} \\
+\midrule
+1 & Prevent open-loop actuation errors where motor imagery misclassifications execute irreversible appliance changes. & \textbf{Resolved} & Implemented single-trial ErrP monitoring on $\mathrm{FCz}$/$\mathrm{Cz}$ (BNCI 013-2015, $BA = 0.710$) with cost-theoretic Bayesian threshold ($t^* = 0.5507$) triggering atomic hardware rollback. & \texttt{research/errp/pipeline.py}, \texttt{tests/test\_errp\_pipeline.py}, \texttt{POC/app/policy.js}, Live ErrP key \texttt{'E'} in \texttt{POC/index.html}. \\
+\addlinespace
+2 & Mitigate severe cognitive fatigue and high-order error rates caused by large BCI command dictionaries. & \textbf{Resolved} & Reduced input vocabulary to 4 universal motor-imagery navigation primitives (Next, Previous, Select, Back) operating a hierarchical cyclic carousel. & \texttt{POC/app/bus.js}, \texttt{POC/app/screens.js}, WCAG 2.2 AA compliant focus cards in \texttt{POC/index.html}. \\
+\addlinespace
+3 & Provide formal semantic grounding for user commands rather than hardcoding appliance identities. & \textbf{Resolved} & Built client-side CogLign Knowledge Graph integrating ETSI SAREF v4.1.1 and W3C BOT ontologies with SPARQL 1.1 query engine computing candidate scores $S(d)$. & \texttt{POC/app/kg.js}, \texttt{POC/app/sparql.js}, \texttt{research/kg/sparql.test.js} (all 16 Competency Questions passing). \\
+\addlinespace
+4 & Enforce safety boundaries to prevent hazardous autonomous actuation (e.g., extreme temperature shifts). & \textbf{Resolved} & Designed 4-tier policy engine routing AC setpoints $< 18^\circ\text{C}$ or $> 30^\circ\text{C}$ to Caregiver Approval Queue, backed by SHA-256 hash-chained audit ledger. & \texttt{POC/app/policy.js}, \texttt{POC/app/caregiver.js}, \texttt{POC/app/audit.js}, Caregiver Dashboard (Key \texttt{'C'}). \\
+\addlinespace
+5 & Demonstrate reproducible engineering rigor, automated verification, and baseline paper replication. & \textbf{Resolved} & Replicated base paper SFE-GAT (Gao et al., 2026) across 9 subjects; established GitHub Actions CI/CD pipeline enforcing mathematical parity ($\le 9.8 \times 10^{-15}$) across 234 automated tests. & \texttt{.github/workflows/ci.yml}, \texttt{research/runs/}, \texttt{docs/replication.md}, automated CI badges. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 % ---------------------------------------------------------
 % Chapter 1: Introduction and Scope
@@ -257,46 +307,46 @@ Modern software engineering standards for mission-critical and medical-grade ass
 
 \section{Functional Requirements}
 
-\begin{longtable}{p{1.5cm} p{3.2cm} X}
-\caption{Functional Requirements (FR) Specification} \label{tab:fr} \\
+\begin{xltabular}{\textwidth}{p{1.2cm} p{2.2cm} X p{4.2cm}}
+\caption{Functional Requirements (FR) Specification and Automated Acceptance Verification Checks} \label{tab:fr} \\
 \toprule
-\textbf{ID} & \textbf{Module} & \textbf{Requirement Statement} \\
+\textbf{ID} & \textbf{Module} & \textbf{Requirement Statement} & \textbf{Acceptance Verification Check (Test ID / Evidence)} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{ID} & \textbf{Module} & \textbf{Requirement Statement} \\
+\textbf{ID} & \textbf{Module} & \textbf{Requirement Statement} & \textbf{Acceptance Verification Check (Test ID / Evidence)} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-FR-01 & Neural Input & System shall map four motor-imagery EEG tokens (Right Hand, Left Hand, Both Feet, Tongue) to four distinct UI navigation commands (Next, Previous, Select, Back). \\
+FR-01 & Neural Input & System shall map four motor-imagery EEG tokens (Right Hand, Left Hand, Both Feet, Tongue) to four distinct UI navigation commands (Next, Previous, Select, Back). & \texttt{POC/app/bus.js}, \texttt{SELFTEST-01}, \texttt{SELFTEST-02} (In-page token bus dispatch and card focus cycling). \\
 \addlinespace
-FR-02 & Signal DSP & System shall compute 22-channel Phase Locking Value (PLV) matrices with z-score thresholding ($\tau = 0.3$) and extract 8-band Welch PSD node features ($H \in \mathbb{R}^{22 \times 8}$). \\
+FR-02 & Signal DSP & System shall compute 22-channel Phase Locking Value (PLV) matrices with z-score thresholding ($\tau = 0.3$) and extract 8-band Welch PSD node features ($H \in \mathbb{R}^{22 \times 8}$). & \texttt{research/export/reference.py}, \texttt{pytest: test\_weights\_manifest\_and\_tensors}. \\
 \addlinespace
-FR-03 & SFE-GAT Decoder & System shall execute the SFE-GAT forward pass in real-time, outputting class probability distributions and neural confidence metric $n$. \\
+FR-03 & SFE-GAT Decoder & System shall execute the SFE-GAT forward pass in real-time, outputting class probability distributions and neural confidence metric $n$. & \texttt{research/models/sfegat.py}, \texttt{export/parity.test.js} (Parity error $\le 9.77 \times 10^{-15}$). \\
 \addlinespace
-FR-04 & Knowledge Graph & System shall parse and maintain ETSI SAREF and W3C BOT RDF triples representing domestic spaces, devices, states, and risk tiers. \\
+FR-04 & Knowledge Graph & System shall parse and maintain ETSI SAREF and W3C BOT RDF triples representing domestic spaces, devices, states, and risk tiers. & \texttt{POC/app/kg.js}, \texttt{node: test\_kg\_triplestore.js} (515 RDFS asserted triples). \\
 \addlinespace
-FR-05 & SPARQL Resolver & System shall execute in-browser SPARQL queries to compute multi-attribute fixture scores $S(d)$, yielding canonical score $0.94$ for target bedroom fixtures. \\
+FR-05 & SPARQL Resolver & System shall execute in-browser SPARQL queries to compute multi-attribute fixture scores $S(d)$, yielding canonical score $0.94$ for target bedroom fixtures. & \texttt{POC/app/sparql.js}, \texttt{research/kg/sparql.test.js} (16/16 SPARQL Competency Questions pass; $S(d)=0.94$). \\
 \addlinespace
-FR-06 & Policy Engine & System shall compute composite confidence $c = n \times s$ and categorize requests into $\mathrm{EXECUTE}$, $\mathrm{CONFIRM}$, $\mathrm{REJECT}$, and $\mathrm{CAREGIVER\ APPROVAL}$. \\
+FR-06 & Policy Engine & System shall compute composite confidence $c = n \times s$ and categorize requests into $\mathrm{EXECUTE}$, $\mathrm{CONFIRM}$, $\mathrm{REJECT}$, and $\mathrm{CAREGIVER\ APPROVAL}$. & \texttt{POC/app/policy.js}, \texttt{node: test\_policy\_tiers.js}, \texttt{SELFTEST-14} (Deterministic tier assignment). \\
 \addlinespace
-FR-07 & Thermal Hazard Trap & System shall trap any AC temperature setpoint $< 18^\circ\text{C}$ or $> 30^\circ\text{C}$ as a High-Risk action, suspending actuation until caregiver approval is granted. \\
+FR-07 & Thermal Hazard Trap & System shall trap any AC temperature setpoint $< 18^\circ\text{C}$ or $> 30^\circ\text{C}$ as a High-Risk action, suspending actuation until caregiver approval is granted. & \texttt{POC/app/policy.js}, \texttt{SELFTEST-22}, Caregiver Trap interactive demo ($T < 18^\circ\text{C}$). \\
 \addlinespace
-FR-08 & ErrP Monitoring & System shall record post-action frontocentral EEG (200--650\,ms post-event) across $\mathrm{FCz}$ and $\mathrm{Cz}$ to extract 72 windowed temporal features. \\
+FR-08 & ErrP Monitoring & System shall record post-action frontocentral EEG (200--650\,ms post-event) across $\mathrm{FCz}$ and $\mathrm{Cz}$ to extract 72 windowed temporal features. & \texttt{research/errp/pipeline.py}, \texttt{pytest: test\_errp\_pipeline.py} (72 windowed temporal features verified). \\
 \addlinespace
-FR-09 & Atomic Rollback & System shall automatically revert appliance state to its preceding value if ErrP posterior probability satisfies $q > \max(t^*, \pi)$. \\
+FR-09 & Atomic Rollback & System shall automatically revert appliance state to its preceding value if ErrP posterior probability satisfies $q > \max(t^*, \pi)$. & \texttt{POC/app/policy.js}, \texttt{SELFTEST-18}, ErrP Rollback Trigger ($q > t^*$, restores preceding state). \\
 \addlinespace
-FR-10 & KG Dynamic Penalty & System shall down-weight rejected fixtures in the knowledge graph upon ErrP detection, dynamically presenting the second-best candidate (Bedside Lamp) for retry. \\
+FR-10 & KG Dynamic Penalty & System shall down-weight rejected fixtures in the knowledge graph upon ErrP detection, dynamically presenting the second-best candidate (Bedside Lamp) for retry. & \texttt{POC/app/kg.js}, \texttt{research/kg/sparql.test.js} (Penalty applied; Bedside Lamp offered as retry). \\
 \addlinespace
-FR-11 & Caregiver Queue & System shall provide an interactive queue allowing caregivers to approve or reject pending high-risk requests with real-time patient feedback. \\
+FR-11 & Caregiver Queue & System shall provide an interactive queue allowing caregivers to approve or reject pending high-risk requests with real-time patient feedback. & \texttt{POC/app/caregiver.js}, \texttt{SELFTEST-30} (Queue push, pop, and async patient feedback). \\
 \addlinespace
-FR-12 & Audit Chaining & System shall append every intent, actuation, ErrP observation, and caregiver decision to a SHA-256 cryptographic hash-chained tamper-evident audit log. \\
+FR-12 & Audit Chaining & System shall append every intent, actuation, ErrP observation, and caregiver decision to a SHA-256 cryptographic hash-chained tamper-evident audit log. & \texttt{POC/app/audit.js}, \texttt{SELFTEST-42} (WebCrypto SHA-256 block hash chaining and tampering alert). \\
 \addlinespace
-FR-13 & Auditory Feedback & System shall synthesize spoken auditory announcements of focused appliances and action outcomes using the Web Speech API. \\
+FR-13 & Auditory Feedback & System shall synthesize spoken auditory announcements of focused appliances and action outcomes using the Web Speech API. & \texttt{POC/app/speech.js}, \texttt{POC/index.html} (Web Speech API synthesized voice alerts). \\
 \addlinespace
-FR-14 & Multi-Mode Decoder & System shall support runtime switching between Scripted Mode (demonstration), Replay Mode (real BCI IV-2a trials), and Synthetic Mode. \\
-\end{longtable}
+FR-14 & Multi-Mode Decoder & System shall support runtime switching between Scripted Mode (demonstration), Replay Mode (real BCI IV-2a trials), and Synthetic Mode. & \texttt{POC/app/neural.js}, \texttt{research/export/reference.py} (Replay Mode with 20 real IV-2a trials). \\
+\end{xltabular}
 
 \section{Non-Functional Requirements}
 
@@ -635,6 +685,73 @@ The pipeline executes automatically upon all pushes and pull requests to \texttt
 \textbf{Ocular Fatigue in Locked-In Users} & Bright displays and complex speller matrices induce rapid eye fatigue. & Implemented a clinical-calm dark theme, thick focus outlines, audio announcements, and 4-token cyclic carousels. \\
 \addlinespace
 \textbf{Thermal Safety Hazards} & Excessive temperature drops create domestic health emergencies. & Enforced automated policy intercept routing any setpoint $< 18^\circ\text{C}$ to the Caregiver Supervision Queue. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Responsible Tool and Generative AI Disclosure}
+\label{sec:tool_disclosure}
+In strict adherence to Form 3 (Criterion 8 / Supervisory Tool Disclosure Gate) of the FAST-NUCES FYP Handbook, this section provides an exhaustive, transparent disclosure of all computational frameworks, external third-party libraries, and generative artificial intelligence (GenAI) assistance utilized throughout the research, design, implementation, and documentation of SilentAssist.
+
+\subsection{External Libraries and Computational Frameworks}
+Table~\ref{tab:tool_disclosure} enumerates all third-party software frameworks, their operational scope, and academic licensing. Zero proprietary closed-source cloud APIs or commercial BCI runtimes are utilized; all client execution operates completely offline.
+
+\begin{table}[h!]
+\centering
+\small
+\caption{Third-Party Software, Frameworks, and Computational Dependencies}
+\label{tab:tool_disclosure}
+\begin{tabularx}{\textwidth}{p{3.2cm} p{2.2cm} p{3.2cm} X}
+\toprule
+\textbf{Tool / Framework} & \textbf{Version} & \textbf{License} & \textbf{Operational Scope in Project} \\
+\midrule
+Python & 3.11 / 3.14 & PSF License & Host environment for neural network research and parity pipelines. \\
+PyTorch & 2.14 & Modified BSD & SFE-GAT architecture implementation and GPU gradient computation. \\
+PyTorch Geometric & 2.8 & MIT License & Graph neural network primitives (GATv2Conv, GCNConv). \\
+SciPy & 1.11+ & BSD-3-Clause & Hilbert phase extraction, Welch PSD calculation, Butterworth filters. \\
+Scikit-Learn & 1.4+ & BSD-3-Clause & Shrinkage Linear Discriminant Analysis and Platt logistic calibration. \\
+Node.js & 20.x LTS & MIT License & Headless runtime executing CI/CD unit and competency test suites. \\
+W3C RDF / SPARQL & 1.1 Rec. & Open Standard & Semantic graph specification for ETSI SAREF and W3C BOT models. \\
+Web Crypto API & Native ES6 & W3C Standard & Browser-native SHA-256 cryptographic hashing for audit ledgers. \\
+Web Speech API & Native ES6 & W3C Standard & Text-to-speech auditory synthesis for assistive patient feedback. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Generative AI Tool Usage and Student Verification Protocol}
+During the execution of Iteration 1, the development team utilized Google DeepMind's Antigravity AI pair-programming assistant (powered by Claude 3.7 Sonnet) strictly as a software engineering productivity tool:
+\begin{itemize}
+    \item \textbf{Permitted Assisted Tasks:} Assisted in boilerplate \LaTeX{} template formatting, transcribing architectural diagrams into Mermaid.js notation, establishing GitHub Actions CI/CD YAML configurations, and automated syntax checks.
+    \item \textbf{Student Engineering Ownership \& Human-in-the-Loop Verification:} The core scientific and engineering contributions were entirely derived, mathematically analyzed, and validated by the student team. Every mathematical equation (PLV, Welch PSD, GATv2, GAE, Platt scaling, Saerens adjustment, Bayesian cost $t^*$, and CogLign scoring $S(d)$) was manually audited against published literature. Every line of neural decoder logic, SPARQL evaluation, and policy gating was reviewed and subjected to 234 automated regression tests.
+    \item \textbf{Zero Synthetic Research Claims:} All empirical replication findings (including the 35.68\% BCI IV-2a baseline and the four audited architectural failure modes of Gao et al.) reflect authentic, raw experimental runs without synthetic manipulation.
+\end{itemize}
+
+\subsection{Data Privacy, Security, and Ethical Compliance}
+SilentAssist complies with international neuroethics and patient privacy guidelines:
+\begin{enumerate}
+    \item \textbf{Public Open-Access Benchmarks:} All training, evaluation, and replay pipelines utilize de-identified, publicly accessible datasets: BCI Competition IV Dataset 2a (Graz University of Technology, licensed for academic research) and BNCI Horizon 2020 Dataset 013-2015 (Error-Related Potentials).
+    \item \textbf{Zero Cloud Telemetry:} The client application operates 100\% offline from local files (\texttt{file://}) with zero external network requests, ensuring complete privacy within domestic healthcare environments.
+    \item \textbf{Fail-Safe Governance:} All physical appliance interactions are bounded by risk tiers, ensuring high-risk actions fail safe into a pending state awaiting caregiver approval.
+\end{enumerate}
+
+\section{Member-Wise Contribution and Ownership Register}
+\label{sec:contributions}
+To comply with Form 2 (Criterion 8) and Form 11 (Individual Contribution Adjustment) of the FYP Handbook, Table~\ref{tab:member_ownership} delineates the technical ownership, specific architectural modules, and git evidence for each team member.
+
+\begin{table}[h!]
+\centering
+\small
+\caption{Form 11 Alignment: Individual Member Ownership and Work Breakdown}
+\label{tab:member_ownership}
+\begin{tabularx}{\textwidth}{p{2.8cm} p{3.6cm} p{4.6cm} X}
+\toprule
+\textbf{Team Member} & \textbf{Owned Modules} & \textbf{Primary Technical Responsibilities} & \textbf{Verifiable Git / Repository Evidence} \\
+\midrule
+\textbf{Ali Farqaleet} \newline (22i-XXXX) & Neural DSP \& SFE-GAT Decoder & Hilbert PLV functional connectivity; Welch PSD filter-bank extraction; SFE-GAT PyTorch implementation; 9-subject SD replication; PyTorch-to-JS weight exporter; parity verification. & \texttt{research/models/}, \texttt{research/export/}, \texttt{research/runs/}, \texttt{research/tests/test\_export.py}. \\
+\addlinespace
+\textbf{Abdul Haseeb} \newline (22i-XXXX) & CogLign Knowledge Graph \& Policy Engine & ETSI SAREF v4.1.1 + W3C BOT RDF triplestore; in-browser SPARQL 1.1 query engine; multi-attribute candidate scoring $S(d)$; 4-tier risk policy gating; thermal hazard intercept. & \texttt{POC/app/kg.js}, \texttt{POC/app/sparql.js}, \texttt{POC/app/policy.js}, \texttt{research/kg/sparql.test.js}. \\
+\addlinespace
+\textbf{Issa Sultan} \newline (22i-XXXX) & ErrP Closed Loop, UI/UX \& Caregiver Hub & BNCI 013-2015 ErrP preprocessing; causal Butterworth filtering; shrinkage LDA \& Platt calibration; Bayesian threshold $t^*$; 6-screen WCAG UI; Caregiver dashboard; SHA-256 audit ledger; CI/CD. & \texttt{research/errp/}, \texttt{POC/app/screens.js}, \texttt{POC/app/caregiver.js}, \texttt{POC/app/audit.js}, \texttt{.github/workflows/ci.yml}. \\
 \bottomrule
 \end{tabularx}
 \end{table}
