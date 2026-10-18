@@ -38,6 +38,8 @@ def R():
 @pytest.fixture(scope="module")
 def A01():
     from sfegat import data as sdata
+    if not os.path.isfile(sdata.mat_path(1, "T")):
+        pytest.skip("BNCI 2014-001 raw .mat files not present in CI environment")
     XT, _, _ = sdata.load_subject(1, "T")
     XE, yE, _ = sdata.load_subject(1, "E")
     return XT, XE, yE

@@ -1,0 +1,37 @@
+{
+ "run": {
+  "id": "20261014-1549-planb-sd-p0/sd_A01",
+  "plan": "B",
+  "preliminary": true,
+  "seed": 0,
+  "stub": false
+ },
+ "taken": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  13,
+  14,
+  15,
+  16,
+  17,
+  20,
+  24,
+  27
+ ],
+ "excluded": [],
+ "accFull": 0.34375,
+ "accSubset": 0.5,
+ "f32VsF64PredDisagreements": 0,
+ "bytes": 2368140,
+ "temperature": 8.01877157912298
+}

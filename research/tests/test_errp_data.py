@@ -9,6 +9,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from errp import cache, data  # noqa: E402
 
 CFG = data.load_config()
+HAVE_DATA = os.path.isfile(data.mat_path(1, 1, CFG))
+pytestmark = pytest.mark.skipif(not HAVE_DATA, reason="BNCI 013-2015 .mat dataset not present in CI environment")
 
 
 def test_mat_files_are_v5_not_v73():

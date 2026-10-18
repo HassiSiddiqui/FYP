@@ -1,0 +1,674 @@
+{
+ "tol": 1e-9,
+ "meta": {
+  "scipy": "1.18.1",
+  "numpy": "2.5.4",
+  "seed": 20261014,
+  "fs": 250,
+  "shape": [
+   22,
+   1000
+  ]
+ },
+ "results": [
+  {
+   "name": "fft N=1 (trivial)",
+   "n": 2,
+   "maxAbs": 0,
+   "maxRef": 1.2110217105737835,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "ifft N=1",
+   "n": 2,
+   "maxAbs": 0,
+   "maxRef": 1.2110217105737835,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "fft N=2 (radix2)",
+   "n": 4,
+   "maxAbs": 0,
+   "maxRef": 1.730114921368238,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "ifft N=2",
+   "n": 4,
+   "maxAbs": 0,
+   "maxRef": 0.865057460684119,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "fft N=3 (bluestein)",
+   "n": 6,
+   "maxAbs": 1.5543122344752192e-15,
+   "maxRef": 4.010042119593951,
+   "relScale": 3.8760496476595756e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=3",
+   "n": 6,
+   "maxAbs": 3.3306690738754696e-16,
+   "maxRef": 1.3366807065313169,
+   "relScale": 2.4917462020668705e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=4 (radix2)",
+   "n": 8,
+   "maxAbs": 0,
+   "maxRef": 3.662849554258094,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "ifft N=4",
+   "n": 8,
+   "maxAbs": 0,
+   "maxRef": 0.9157123885645235,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "fft N=5 (bluestein)",
+   "n": 10,
+   "maxAbs": 8.881784197001252e-16,
+   "maxRef": 3.0454078121368076,
+   "relScale": 2.9164515049855857e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=5",
+   "n": 10,
+   "maxAbs": 1.6653345369377348e-16,
+   "maxRef": 0.6090815624273616,
+   "relScale": 2.7341732859239866e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=7 (bluestein)",
+   "n": 14,
+   "maxAbs": 4.440892098500626e-15,
+   "maxRef": 4.8450258165570705,
+   "relScale": 9.16587912354278e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=7",
+   "n": 14,
+   "maxAbs": 4.163336342344337e-16,
+   "maxRef": 0.6921465452224386,
+   "relScale": 6.01510817482495e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=8 (radix2)",
+   "n": 16,
+   "maxAbs": 6.661338147750939e-16,
+   "maxRef": 3.8917233634961232,
+   "relScale": 1.7116679490205946e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=8",
+   "n": 16,
+   "maxAbs": 2.7755575615628914e-17,
+   "maxRef": 0.4864654204370154,
+   "relScale": 5.705559830068649e-17,
+   "ok": true
+  },
+  {
+   "name": "fft N=16 (radix2)",
+   "n": 32,
+   "maxAbs": 1.1102230246251565e-15,
+   "maxRef": 10.217275767433748,
+   "relScale": 1.0866135454265115e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=16",
+   "n": 32,
+   "maxAbs": 1.1102230246251565e-16,
+   "maxRef": 0.6385797354646092,
+   "relScale": 1.7385816726824183e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=31 (bluestein)",
+   "n": 62,
+   "maxAbs": 1.3322676295501878e-14,
+   "maxRef": 10.34095318361199,
+   "relScale": 1.2883412253152086e-15,
+   "ok": true
+  },
+  {
+   "name": "ifft N=31",
+   "n": 62,
+   "maxAbs": 2.498001805406602e-16,
+   "maxRef": 0.3335791349552255,
+   "relScale": 7.488483372144649e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=64 (radix2)",
+   "n": 128,
+   "maxAbs": 5.773159728050814e-15,
+   "maxRef": 21.056670146177566,
+   "relScale": 2.741724920404293e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=64",
+   "n": 128,
+   "maxAbs": 1.0408340855860843e-16,
+   "maxRef": 0.3290104710340245,
+   "relScale": 3.1635287543126457e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=97 (bluestein)",
+   "n": 194,
+   "maxAbs": 2.3092638912203256e-14,
+   "maxRef": 25.657947294919808,
+   "relScale": 9.000189550149838e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=97",
+   "n": 194,
+   "maxAbs": 2.463307335887066e-16,
+   "maxRef": 0.2645149205661836,
+   "relScale": 9.312545888203416e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=125 (bluestein)",
+   "n": 250,
+   "maxAbs": 4.263256414560601e-14,
+   "maxRef": 33.28917023804853,
+   "relScale": 1.2806736797806473e-15,
+   "ok": true
+  },
+  {
+   "name": "ifft N=125",
+   "n": 250,
+   "maxAbs": 2.983724378680108e-16,
+   "maxRef": 0.26631336190438815,
+   "relScale": 1.1203810268263314e-15,
+   "ok": true
+  },
+  {
+   "name": "fft N=250 (bluestein)",
+   "n": 500,
+   "maxAbs": 4.263256414560601e-14,
+   "maxRef": 47.60888445151255,
+   "relScale": 8.954749651617086e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=250",
+   "n": 500,
+   "maxAbs": 1.97758476261356e-16,
+   "maxRef": 0.19043553780605021,
+   "relScale": 1.0384536339155556e-15,
+   "ok": true
+  },
+  {
+   "name": "fft N=256 (radix2)",
+   "n": 512,
+   "maxAbs": 2.4868995751603507e-14,
+   "maxRef": 48.774193567144934,
+   "relScale": 5.098802037058314e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=256",
+   "n": 512,
+   "maxAbs": 9.71445146547012e-17,
+   "maxRef": 0.19052419362165993,
+   "relScale": 5.098802037058313e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=500 (bluestein)",
+   "n": 1000,
+   "maxAbs": 5.684341886080802e-14,
+   "maxRef": 76.11880523409828,
+   "relScale": 7.467723473324351e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=500",
+   "n": 1000,
+   "maxAbs": 1.5959455978986625e-16,
+   "maxRef": 0.1522376104681966,
+   "relScale": 1.048325438760132e-15,
+   "ok": true
+  },
+  {
+   "name": "fft N=997 (bluestein)",
+   "n": 1994,
+   "maxAbs": 1.2079226507921703e-13,
+   "maxRef": 95.33904401752739,
+   "relScale": 1.2669758368566215e-15,
+   "ok": true
+  },
+  {
+   "name": "ifft N=997",
+   "n": 1994,
+   "maxAbs": 1.214306433183765e-16,
+   "maxRef": 0.09562592178287604,
+   "relScale": 1.269850695861437e-15,
+   "ok": true
+  },
+  {
+   "name": "fft N=1000 (bluestein)",
+   "n": 2000,
+   "maxAbs": 1.0658141036401503e-13,
+   "maxRef": 104.92895722576468,
+   "relScale": 1.0157483042044814e-15,
+   "ok": true
+  },
+  {
+   "name": "ifft N=1000",
+   "n": 2000,
+   "maxAbs": 1.1405806854547507e-16,
+   "maxRef": 0.10492895722576469,
+   "relScale": 1.087002783226638e-15,
+   "ok": true
+  },
+  {
+   "name": "fft N=1024 (radix2)",
+   "n": 2048,
+   "maxAbs": 7.105427357601002e-14,
+   "maxRef": 124.32530083986089,
+   "relScale": 5.715190158078328e-16,
+   "ok": true
+  },
+  {
+   "name": "ifft N=1024",
+   "n": 2048,
+   "maxAbs": 6.938893903907228e-17,
+   "maxRef": 0.12141142660142665,
+   "relScale": 5.715190158078328e-16,
+   "ok": true
+  },
+  {
+   "name": "fft N=2000 (bluestein)",
+   "n": 4000,
+   "maxAbs": 2.0605739337042905e-13,
+   "maxRef": 150.41074411658704,
+   "relScale": 1.3699645898348122e-15,
+   "ok": true
+  },
+  {
+   "name": "ifft N=2000",
+   "n": 4000,
+   "maxAbs": 7.849623728795052e-17,
+   "maxRef": 0.07520537205829353,
+   "relScale": 1.0437583797485393e-15,
+   "ok": true
+  },
+  {
+   "name": "rfft N=1000",
+   "n": 1002,
+   "maxAbs": 5.314859663485549e-12,
+   "maxRef": 10444.780243005978,
+   "relScale": 5.088531821475592e-16,
+   "ok": true
+  },
+  {
+   "name": "butter SOS: paper bands N=4",
+   "n": 192,
+   "maxAbs": 4.440892098500626e-16,
+   "maxRef": 2,
+   "relScale": 2.220446049250313e-16,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "sosfilt_zi: paper bands N=4",
+   "n": 64,
+   "maxAbs": 0,
+   "maxRef": 0.02699953853031831,
+   "relScale": 0,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "sosfiltfilt (22x1000): paper bands N=4",
+   "n": 176000,
+   "maxAbs": 2.7133850721838826e-13,
+   "maxRef": 24.274245218521013,
+   "relScale": 1.5157515773100624e-14,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "butter SOS: paper bands N=5",
+   "n": 240,
+   "maxAbs": 4.440892098500626e-16,
+   "maxRef": 2,
+   "relScale": 2.220446049250313e-16,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "sosfilt_zi: paper bands N=5",
+   "n": 80,
+   "maxAbs": 0,
+   "maxRef": 0.0010368080197911869,
+   "relScale": 0,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "sosfiltfilt (22x1000): paper bands N=5",
+   "n": 176000,
+   "maxAbs": 3.446132268436486e-13,
+   "maxRef": 24.093061997141994,
+   "relScale": 1.7261490277833347e-14,
+   "ok": true,
+   "cases": 8
+  },
+  {
+   "name": "butter SOS: extra filters",
+   "n": 474,
+   "maxAbs": 8.881784197001252e-16,
+   "maxRef": 2,
+   "relScale": 4.440892098500626e-16,
+   "ok": true,
+   "cases": 24
+  },
+  {
+   "name": "sosfilt_zi: extra filters",
+   "n": 158,
+   "maxAbs": 0,
+   "maxRef": 0.9962950707610356,
+   "relScale": 0,
+   "ok": true,
+   "cases": 24
+  },
+  {
+   "name": "sosfiltfilt (22x1000): extra filters",
+   "n": 72000,
+   "maxAbs": 2.1733725930062064e-11,
+   "maxRef": 97.77882656552444,
+   "relScale": 1.756156434219823e-12,
+   "ok": true,
+   "cases": 24
+  },
+  {
+   "name": "sosfilt (no zi) 8-12 N=4",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 9.102850683633383,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "sosfiltfilt padtype=even padlen=null",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 7.808024867290854,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "sosfiltfilt padtype=constant padlen=null",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 7.8078293292719065,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "sosfiltfilt padtype=null padlen=null",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 7.807693041976493,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "sosfiltfilt padtype=odd padlen=100",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 7.931156601845297,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "sosfiltfilt padtype=odd padlen=0",
+   "n": 1000,
+   "maxAbs": 0,
+   "maxRef": 7.807693041976493,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":250,\"noverlap\":125}",
+   "n": 126,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":250,\"noverlap\":125}",
+   "n": 2772,
+   "maxAbs": 3.019806626980426e-14,
+   "maxRef": 131.76593047220905,
+   "relScale": 2.291796229995384e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":256}",
+   "n": 129,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":256}",
+   "n": 2838,
+   "maxAbs": 4.263256414560601e-14,
+   "maxRef": 125.22772048928283,
+   "relScale": 3.404403112907782e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":128,\"noverlap\":64}",
+   "n": 65,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":128,\"noverlap\":64}",
+   "n": 1430,
+   "maxAbs": 2.842170943040401e-14,
+   "maxRef": 62.08200168247602,
+   "relScale": 4.578091662664067e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":250,\"noverlap\":125,\"nfft\":512}",
+   "n": 257,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":250,\"noverlap\":125,\"nfft\":512}",
+   "n": 5654,
+   "maxAbs": 4.39648317751562e-14,
+   "maxRef": 129.48944153352187,
+   "relScale": 3.3952445276223317e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":125,\"noverlap\":0}",
+   "n": 63,
+   "maxAbs": 0,
+   "maxRef": 124,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":125,\"noverlap\":0}",
+   "n": 1386,
+   "maxAbs": 2.1316282072803006e-14,
+   "maxRef": 57.37577248141489,
+   "relScale": 3.7152061141673966e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":250,\"noverlap\":125,\"scaling\":\"spectrum\"}",
+   "n": 126,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":250,\"noverlap\":125,\"scaling\":\"spectrum\"}",
+   "n": 2772,
+   "maxAbs": 1.4210854715202004e-13,
+   "maxRef": 197.64889570831352,
+   "relScale": 7.189948956848265e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":250,\"noverlap\":125,\"detrend\":false}",
+   "n": 126,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":250,\"noverlap\":125,\"detrend\":false}",
+   "n": 2772,
+   "maxAbs": 9.094947017729282e-13,
+   "maxRef": 4583.204386616721,
+   "relScale": 1.9844079055883186e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":250,\"noverlap\":200,\"average\":\"median\"}",
+   "n": 126,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":250,\"noverlap\":200,\"average\":\"median\"}",
+   "n": 2772,
+   "maxAbs": 8.526512829121202e-14,
+   "maxRef": 178.11970288164693,
+   "relScale": 4.786956575369268e-16,
+   "ok": true
+  },
+  {
+   "name": "welch f {\"nperseg\":2000}",
+   "n": 501,
+   "maxAbs": 0,
+   "maxRef": 125,
+   "relScale": 0,
+   "ok": true
+  },
+  {
+   "name": "welch Pxx 22ch {\"nperseg\":2000}",
+   "n": 11022,
+   "maxAbs": 4.547473508864641e-13,
+   "maxRef": 520.6402784536624,
+   "relScale": 8.734386671678479e-16,
+   "ok": true
+  },
+  {
+   "name": "hilbert 22x1000",
+   "n": 44000,
+   "maxAbs": 2.4868995751603507e-13,
+   "maxRef": 163.37485589530286,
+   "relScale": 1.5222046021292623e-15,
+   "ok": true
+  },
+  {
+   "name": "hilbert 2x999 (odd N)",
+   "n": 3996,
+   "maxAbs": 8.881784197001252e-14,
+   "maxRef": 133.5500979354448,
+   "relScale": 6.650526157827689e-16,
+   "ok": true
+  },
+  {
+   "name": "hilbert N=1024 (zero-pad)",
+   "n": 4096,
+   "maxAbs": 5.1514348342607263e-14,
+   "maxRef": 97.94242984402914,
+   "relScale": 5.259655945297924e-16,
+   "ok": true
+  },
+  {
+   "name": "phase of hilbert(bandpass 8-12) 22x1000 [rad]",
+   "n": 22000,
+   "maxAbs": 1.8662849043948881e-13,
+   "maxRef": 3.141592653589793,
+   "relScale": 5.940569355044635e-14,
+   "ok": true
+  },
+  {
+   "name": "integrate simpson/trapezoid, N=1..11, x & dx",
+   "n": 44,
+   "maxAbs": 4.440892098500626e-16,
+   "maxRef": 6.312320830783422,
+   "relScale": 7.035276275634848e-17,
+   "ok": true
+  },
+  {
+   "name": "bandpower H 22x8 [simpson|closed]",
+   "n": 176,
+   "maxAbs": 3.517186542012496e-13,
+   "maxRef": 208.11843176650015,
+   "relScale": 1.6899928142638642e-15,
+   "ok": true
+  },
+  {
+   "name": "bandpower H 22x8 [simpson|half-open]",
+   "n": 176,
+   "maxAbs": 3.552713678800501e-13,
+   "maxRef": 207.91359412171587,
+   "relScale": 1.7087452572825452e-15,
+   "ok": true
+  },
+  {
+   "name": "bandpower H 22x8 [trapezoid|closed]",
+   "n": 176,
+   "maxAbs": 3.161915174132446e-13,
+   "maxRef": 181.7787600464653,
+   "relScale": 1.7394304886468664e-15,
+   "ok": true
+  },
+  {
+   "name": "bandpower H 22x8 [trapezoid|half-open]",
+   "n": 176,
+   "maxAbs": 3.126388037344441e-13,
+   "maxRef": 181.5433945478698,
+   "relScale": 1.7221161062514268e-15,
+   "ok": true
+  }
+ ],
+ "worstRelScale": 1.756156434219823e-12,
+ "worstMaxAbs": 2.1733725930062064e-11
+}

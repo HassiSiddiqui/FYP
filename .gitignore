@@ -21,8 +21,9 @@ research/data/
 *.gdf
 
 # Cache & Build Runs
-research/.cache/
-research/cache/
+research/.cache/pip/
+research/.cache/edge-profile/
+research/.cache/tmp/
 research/runs/
 *.log
 

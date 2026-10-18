@@ -55,6 +55,8 @@ def test_car_and_baseline():
 
 
 def test_fast_lda_equals_sklearn():
+    if not os.path.exists(cache.cache_path(3, 1)):
+        pytest.skip("errp cache not built")
     d = cache.load(3, 1)
     w, b = model.fit_slda(d["F"], d["y"], CFG)
     w2, b2 = model.fit_slda_fast(d["F"], d["y"])
