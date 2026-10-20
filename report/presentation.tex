@@ -1,0 +1,517 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ---------------------------------------------------------
+% Theme & Styling
+% ---------------------------------------------------------
+\usetheme{default}
+\usecolortheme{default}
+
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+
+% Palette matching FieldLens design
+\definecolor{DarkSlate}{RGB}{20, 28, 22}
+\definecolor{ForestGreen}{RGB}{36, 90, 56}
+\definecolor{MutedGreen}{RGB}{234, 239, 230}
+\definecolor{WarmBg}{RGB}{246, 247, 243}
+\definecolor{CardBg}{RGB}{255, 255, 255}
+\definecolor{AlertRed}{RGB}{168, 40, 40}
+\definecolor{AlertGold}{RGB}{194, 139, 30}
+\definecolor{SubText}{RGB}{90, 100, 93}
+
+\setbeamercolor{background canvas}{bg=WarmBg}
+\setbeamercolor{normal text}{fg=DarkSlate}
+\setbeamercolor{frametitle}{fg=DarkSlate,bg=WarmBg}
+\setbeamercolor{title}{fg=DarkSlate}
+\setbeamercolor{block title}{fg=ForestGreen,bg=MutedGreen}
+\setbeamercolor{block body}{fg=DarkSlate,bg=CardBg}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{frametitle}{
+    \vspace{0.3cm}
+    {\scriptsize \textbf{\color{ForestGreen}\MakeUppercase{\insertframetitle}}}\\[-0.1cm]
+    {\large \textbf{\color{DarkSlate}\insertframesubtitle}}
+}
+
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=1cm,rightskip=1cm]{normal text}%
+        {\tiny \color{SubText} \textbf{SILENTASSIST} --- CLOSED-LOOP ASSISTIVE BCI \hfill \insertframenumber{} / \inserttotalframenumber}%
+    \end{beamercolorbox}}%
+    \vspace{0.15cm}
+}
+
+% ---------------------------------------------------------
+% Title & Metadata
+% ---------------------------------------------------------
+\title{\textbf{Decode the intent. Close the loop.}}
+\subtitle{SilentAssist: Adaptive EEG-Based Assistive Home \& Cognitive Support System}
+\author{\textbf{Ali Farqaleet} (22i-0579) \quad \textbf{Abdul Haseeb} (23i-2654) \quad \textbf{Issa Sultan} (23i-2596)}
+\institute{Supervised by: \textbf{Dr. Adil Majeed} \\ FAST School of Computing, FAST-NUCES Islamabad}
+\date{FYP-1 Mid-Term Evaluation --- Fall 2026}
+
+\begin{document}
+
+% SLIDE 1: TITLE
+\begin{frame}[plain]
+    \vspace{0.5cm}
+    {\scriptsize \textbf{\color{ForestGreen}FYP-1 · MID-EVALUATION \hfill ASSISTIVE NEUROTECHNOLOGY}}\\[0.4cm]
+    {\Huge \textbf{Decode the intent.}}\\[0.1cm]
+    {\Huge \textbf{\color{ForestGreen}Close the loop.}}\\[0.3cm]
+    {\small \color{SubText} SilentAssist turns noisy motor-imagery EEG into context-aware smart home control with autonomous error rollback.}\\[0.6cm]
+    
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{\small Project Team}
+                \scriptsize
+                \textbf{Ali Farqaleet} (22i-0579) --- DSP \& SFE-GAT Decoder \\
+                \textbf{Abdul Haseeb} (23i-2654) --- CogLign KG \& Policy \\
+                \textbf{Issa Sultan} (23i-2596) --- ErrP Pipeline \& Caregiver Hub \\[0.1cm]
+                \textbf{Supervisor:} Dr. Adil Majeed
+            \end{block}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \begin{block}{\small Midterm Deliverable Status}
+                \scriptsize
+                \textbf{6 Modules Operational} · 100\% Offline Zero-Build \\
+                \textbf{234 Automated Tests} Passing on GitHub Actions \\
+                \textbf{Parity Gate:} PyTorch $\leftrightarrow$ JS Logits $\le 9.77 \times 10^{-15}$
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 2: PROBLEM & USERS
+\begin{frame}
+    \frametitle{Problem and Users · 15 Marks}
+    \framesubtitle{Patients need autonomy, not cognitive exhaustion.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Physical Lock-In}
+                \scriptsize
+                \textbf{ALS, tetraplegia, SCI}\\
+                • Cognition intact; total motor loss\\
+                • 100\% reliant on caregivers for light, AC, media\\
+                • Physical switches fail as muscles atrophy
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Commercial Tech Fails}
+                \scriptsize
+                \textbf{Severe Bottlenecks}\\
+                • \textbf{Eye-Gaze:} Ocular fatigue \& Midas Touch clicks\\
+                • \textbf{Voice:} Fails on dysarthria; cloud privacy leaks\\
+                • \textbf{Open-Loop BCI:} Sprawling vocabularies induce error spirals
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small SilentAssist Closed Loop}
+                \scriptsize
+                \textbf{Dual-Graph Solution}\\
+                • \textbf{4 Universal Tokens:} Next, Prev, Select, Back\\
+                • \textbf{Semantic Grounding:} In-browser SPARQL\\
+                • \textbf{Autonomous Rollback:} Real-time ErrP recovery
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 3: RESEARCH GAP & REPLICATION AUDIT
+\begin{frame}
+    \frametitle{Research Gap & Baseline Audit · 15 Marks}
+    \framesubtitle{Claimed accuracy collapses. Our audit explains why.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Published Benchmark}
+                \scriptsize
+                \textbf{Gao et al. 2026 (\textit{Sensors})}\\
+                \Large \textbf{\color{ForestGreen}77.7\%}\\
+                \scriptsize Claimed subject-dependent 4-class MI accuracy on BCI Competition IV-2a via SFE-GAT.
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Our Replication}
+                \scriptsize
+                \textbf{Empirical Baseline}\\
+                \Large \textbf{\color{AlertRed}35.7\%}\\
+                \scriptsize Strict evaluation on held-out session E across all 9 subjects ($k/288$ floored). Severe overfitting (train $\approx 99\%$).
+            \end{block}
+        \end{column}
+        \begin{column}{0.34\textwidth}
+            \begin{block}{\small 4 Audited Failure Causes}
+                \scriptsize
+                \textbf{1. GAE Gradient Starvation:} Pure CE loss freezes GAE at init (100\% edges kept).\\
+                \textbf{2. Unnormalized PSDs:} Powers $> 170\,\mu V^2$ destabilize attention heads.\\
+                \textbf{3. Inter-Session Drift:} $2.8\times$ power surge on A02 breaks inference.
+            \end{block}
+        \end{column}
+    \end{columns}
+    \vspace{0.2cm}
+    {\scriptsize \textbf{\color{ForestGreen}Scientific Rigor:} We report authentic numbers and diagnose base paper flaws rather than hiding behind synthetic tuning.}
+\end{frame}
+
+% SLIDE 4: REQUIREMENTS & VALIDATION
+\begin{frame}
+    \frametitle{Software Requirements · 15 Marks}
+    \framesubtitle{We verified the system before claiming progress.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small 14 Functional Requirements}
+                \scriptsize
+                • \textbf{FR-01:} 4-Token MI input mapping\\
+                • \textbf{FR-03:} Real-time SFE-GAT forward pass\\
+                • \textbf{FR-05:} In-browser SPARQL resolver\\
+                • \textbf{FR-07:} AC Thermal Hazard trap ($< 18^\circ$C)\\
+                • \textbf{FR-09:} ErrP atomic state rollback
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small 7 Quality Constraints}
+                \scriptsize
+                • \textbf{NFR-01:} Latency $< 100$\,ms per trial\\
+                • \textbf{NFR-02:} 100\% Offline (`file://`)\\
+                • \textbf{NFR-03:} SHA-256 audit ledger\\
+                • \textbf{NFR-05:} Contrast $> 7:1$ (WCAG AAA)\\
+                • \textbf{NFR-07:} PyTorch-JS parity $\le 10^{-4}$
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Verification Coverage}
+                \scriptsize
+                \Large \textbf{\color{ForestGreen}234 / 234}\\
+                \scriptsize \textbf{Passing Automated Tests}\\
+                • 104 Pytest Tests (DSP \& GNN)\\
+                • 54 Node.js Unit \& SPARQL Tests\\
+                • 76 Edge Headless In-Page Selftests
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 5: SYSTEM ARCHITECTURE
+\begin{frame}
+    \frametitle{System Architecture · 15 Marks}
+    \framesubtitle{One pipeline unites dual graphs: continuous \& symbolic.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Tiers 1 \& 2: Brain DSP}
+                \scriptsize
+                \textbf{Continuous Brain Graph}\\
+                • 22-ch continuous EEG ingestion\\
+                • Hilbert Phase Locking Value ($\tau = 0.3$)\\
+                • 8-Band Welch PSD node features\\
+                • SFE-GAT GATv2/GAE forward pass\\
+                • Shrinkage-LDA ErrP detector
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Tier 3: CogLign KG}
+                \scriptsize
+                \textbf{Discrete Symbolic Graph}\\
+                • ETSI SAREF v4.1.1 + W3C BOT RDF\\
+                • In-browser SPARQL 1.1 query engine\\
+                • Multi-attribute candidate score $S(d)$\\
+                • Sub-5ms deterministic query resolution
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Tiers 4 \& 5: Policy \& UI}
+                \scriptsize
+                \textbf{Governance \& Presentation}\\
+                • Composite confidence $c = n \times s$\\
+                • Thermal Hazard Intercept ($< 18^\circ$C)\\
+                • Caregiver Dashboard \& Audit Log\\
+                • Atomic Rollback on ErrP detection
+            \end{block}
+        \end{column}
+    \end{columns}
+    \vspace{0.2cm}
+    {\scriptsize \textbf{Decoupled Event Bus:} \texttt{SA.bus} (Pub/Sub) $\longleftrightarrow$ \texttt{SA.store} (Single Immutable State)}
+\end{frame}
+
+% SLIDE 6: DECISION POLICY & ERRP ROLLBACK
+\begin{frame}
+    \frametitle{Process & Behavior Design · 10 Marks}
+    \framesubtitle{The system protects the patient and corrects itself.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small 4 Policy Tiers}
+                \scriptsize
+                • \textbf{EXECUTE ($c \ge 0.75$):} Immediate actuation + voice feedback\\
+                • \textbf{CONFIRM ($0.5 \le c < 0.75$):} Single-token confirmation dialogue\\
+                • \textbf{REJECT ($c < 0.5$):} Silent drop\\
+                • \textbf{CAREGIVER:} Thermal requests $< 18^\circ$C require nurse authorization
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small ErrP Detection Pipeline}
+                \scriptsize
+                \textbf{Frontocentral EEG (FCz/Cz)}\\
+                • Evaluates 650\,ms post-action window\\
+                • 72 window-major temporal features\\
+                • Shrinkage LDA + Platt scaling ($q$)\\
+                • Saerens prior-shift adaptation
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Bayesian Cost Boundary}
+                \scriptsize
+                \Large \textbf{\color{ForestGreen}$t^* = 0.5507$}\\
+                \scriptsize Derived from asymmetric cognitive costs:\\
+                $t^* = \frac{C_{\mathrm{FP}}}{C_{\mathrm{FP}} + C_{\mathrm{FN}} - C_{\mathrm{TP}}} = \frac{5}{5 + 7 - 2.92}$\\
+                Rollback executes if $q > \max(t^*, \pi)$.
+            \end{block}
+        \end{column}
+    \end{columns}
+    \vspace{0.2cm}
+    {\scriptsize \textbf{\color{ForestGreen}Atomic Restoration:} Reverts appliance to preceding state and automatically elevates second-best fixture candidate for retry.}
+\end{frame}
+
+% SLIDE 7: LIVE DEMO PART 1
+\begin{frame}
+    \frametitle{Live Demonstration · Part 1 (15 Marks)}
+    \framesubtitle{Universal navigation without cognitive fatigue.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small 4-Token Universal Nav}
+                \scriptsize
+                • \textbf{Right Arrow (Right Hand):} Next\\
+                • \textbf{Left Arrow (Left Hand):} Previous\\
+                • \textbf{Down Arrow (Both Feet):} Select\\
+                • \textbf{Up Arrow (Tongue):} Back / Exit\\[0.1cm]
+                Eliminates the cognitive exhaustion of sprawling matrix spellers.
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Clinical Accessibility}
+                \scriptsize
+                • \textbf{WCAG 2.2 AAA Contrast:} $> 7:1$\\
+                • \textbf{Zero Ocular Glare:} Clinical dark mode\\
+                • \textbf{Web Speech API:} Auditory voice alerts\\
+                • \textbf{Zero Build:} Operates natively from local files (\texttt{file://})
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small In-Browser SPARQL}
+                \scriptsize
+                • Loads 515 RDFS-asserted triples\\
+                • Resolves spatial context in $< 5$\,ms\\
+                • Computes match score $S(d) = 0.94$\\
+                • Zero remote server dependencies
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 8: LIVE DEMO PART 2
+\begin{frame}
+    \frametitle{Live Demonstration · Part 2 (15 Marks)}
+    \framesubtitle{Edge and failure cases handled in real time.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Failure Case: ErrP Rollback}
+                \scriptsize
+                \textbf{Key 'E' Demo}\\
+                1. User selects Bedroom Ceiling Light.\\
+                2. Simulated error deflection occurs.\\
+                3. Posterior $q = 0.78 > t^* = 0.5507$.\\
+                \textbf{\color{ForestGreen}State reverts to OFF; Bedside Lamp offered as retry!}
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Hazard Trap: AC $< 18^\circ$C}
+                \scriptsize
+                \textbf{Thermal Safety Demo}\\
+                1. Patient navigates to AC controls.\\
+                2. Selects dangerous 16$^\circ$C setpoint.\\
+                3. Policy Engine intercepts command.\\
+                \textbf{\color{AlertGold}Actuation blocked; routed to Caregiver Approval Queue!}
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Supervision: Caregiver Hub}
+                \scriptsize
+                \textbf{Key 'C' Demo}\\
+                1. Live Appliance Shadow Table.\\
+                2. Pending high-risk authorization queue.\\
+                3. SHA-256 Hash-Chained Audit Ledger.\\
+                \textbf{\color{ForestGreen}Visual cryptographic alert upon simulated data tampering!}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 9: TESTING & PARITY GATE
+\begin{frame}
+    \frametitle{Testing & Early Validation · 10 Marks}
+    \framesubtitle{Mathematical parity to $10^{-15}$. All CI/CD gates green.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small 5 Automated CI Gates}
+                \scriptsize
+                • \textbf{Gate 1:} Lint \& Syntax (81 JS files)\\
+                • \textbf{Gate 2:} 54 Node.js Unit \& SPARQL Tests\\
+                • \textbf{Gate 3:} 104 Pytest Tests \& Parity Gate\\
+                • \textbf{Gate 4:} 76 Headless Edge Tests\\
+                • \textbf{Gate 5:} Offline Bundle Packaging
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Tensor Parity Gate}
+                \scriptsize
+                \Large \textbf{\color{ForestGreen}$\le 9.77 \times 10^{-15}$}\\
+                \scriptsize \textbf{Max Absolute Logit Error}\\
+                Proves that browser JavaScript engine executes the exact weights trained in PyTorch (within float64 precision).
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small ErrP Generalization}
+                \scriptsize
+                \Large \textbf{\color{ForestGreen}0.710 BA}\\
+                \scriptsize \textbf{AUC $0.780 \pm 0.099$}\\
+                Cross-session validation on BNCI 013-2015 exceeds registered gate ($\ge 0.645$); deployed subject S01 reaches \textbf{0.823 BA}.
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% SLIDE 10: TEAM OWNERSHIP & DISCLOSURE
+\begin{frame}
+    \frametitle{Team Ownership & Tool Disclosure · 10 Marks}
+    \framesubtitle{The work is shared. Responsibility is explicit.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Ali Farqaleet}
+                \scriptsize
+                \textbf{Roll No: 22i-0579}\\
+                • M1: Neural DSP \& SFE-GAT\\
+                • Hilbert PLV \& Welch PSD\\
+                • 9-Subject replication \& audit\\
+                • PyTorch-to-JS parity exporter
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Abdul Haseeb}
+                \scriptsize
+                \textbf{Roll No: 23i-2654}\\
+                • M3: CogLign Knowledge Graph\\
+                • SAREF + BOT RDF triplestore\\
+                • In-browser SPARQL 1.1 engine\\
+                • M4: 4-Tier Policy Governance
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Issa Sultan}
+                \scriptsize
+                \textbf{Roll No: 23i-2596}\\
+                • M2: ErrP shrinkage-LDA pipeline\\
+                • Platt calibration \& $t^*$ boundary\\
+                • M5/M6: 6-Screen UI \& Caregiver Hub\\
+                • SHA-256 audit log \& GitHub CI/CD
+            \end{block}
+        \end{column}
+    \end{columns}
+    \vspace{0.2cm}
+    {\scriptsize \textbf{\color{ForestGreen}Responsible AI Disclosure:} Antigravity AI used strictly for LaTeX/diagram formatting; 100\% of code, equations, and test assertions verified by student authors.}
+\end{frame}
+
+% SLIDE 11: REMAINING ROADMAP
+\begin{frame}
+    \frametitle{Remaining Plan & Milestones · 10 Marks}
+    \framesubtitle{The foundation works. Generalization comes next.}
+    \begin{columns}[T]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Normalize}
+                \scriptsize
+                \textbf{Iteration 2 (FYP-1 Final)}\\
+                • $\log_{10}$ PSD power transform\\
+                • Input batch normalization in stem\\
+                • Stabilizes GATv2 attention heads
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Evolve}
+                \scriptsize
+                \textbf{Iteration 2 (FYP-1 Final)}\\
+                • Auxiliary link-loss ($\lambda_{\mathrm{recon}} > 0$)\\
+                • Unfreezes GAE encoder gradients\\
+                • Enables true dynamic graph evolution
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{\small Deploy}
+                \scriptsize
+                \textbf{Iteration 3 \& 4 (FYP-2)}\\
+                • 9-Fold LOSO cross-validation\\
+                • Physical MQTT smart plug bridge\\
+                • Live OpenBCI Cyton LSL streaming
+            \end{block}
+        \end{column}
+    \end{columns}
+    \vspace{0.2cm}
+    {\scriptsize \textbf{On track for FYP-1 Final submission with verified software and hardware readiness.}}
+\end{frame}
+
+% APPENDIX SLIDES
+\begin{frame}
+    \frametitle{Appendix 1: Architecture Decisions Register}
+    \framesubtitle{Every component has an engineering justification.}
+    \tiny
+    \begin{tabularx}{\textwidth}{c p{3.2cm} p{3.2cm} X}
+        \toprule
+        \textbf{ID} & \textbf{Decision} & \textbf{Alternatives} & \textbf{Engineering Rationale} \\
+        \midrule
+        AD-1 & 4 Universal Navigation Primitives & Dozens of per-device MI tokens & Motor cortex cannot separate 20+ classes; 4 tokens eliminate cognitive collapse. \\
+        AD-2 & Client-Side In-Browser Execution & Python Flask / FastAPI backend & Eliminates network latency and server outages; guarantees 100\% offline privacy. \\
+        AD-3 & In-Memory SPARQL Engine & Remote GraphDB / Virtuoso & Eliminates heavy external server dependencies; executes semantic queries in $< 5$\,ms. \\
+        AD-4 & Shrinkage LDA + Platt Calibration & Deep EEGNet for ErrP & Limited trials per subject; shrinkage prevents singularity and trains instantly. \\
+        AD-5 & Bayesian Cost Threshold ($t^* = 0.55$) & Fixed 0.5 probability split & Asymmetric costs: false rollback irritates user, but uncorrected error forces fatigue. \\
+        AD-7 & SHA-256 Hash-Chained Ledger & Standard SQL table & Ensures cryptographic tamper-evidence for medical and legal incident auditing. \\
+        \bottomrule
+    \end{tabularx}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix 2: Project Risk Register}
+    \framesubtitle{Risks are documented, not hidden.}
+    \scriptsize
+    \begin{tabularx}{\textwidth}{c p{3.5cm} c c X}
+        \toprule
+        \textbf{ID} & \textbf{Risk Description} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Implemented Engineering Mitigation} \\
+        \midrule
+        R-1 & SFE-GAT Replication Gap & High & Med & Audited 4 root causes; planned feature normalization and GAE link loss for Iteration 2. \\
+        R-2 & High Latency Semantic Queries & Med & Med & Engineered custom in-memory triplestore; queries resolve in $< 5$\,ms locally. \\
+        R-3 & Domestic Thermal Hazards & Low & High & Policy Engine intercepts AC setpoints $< 18^\circ$C; requires caregiver authorization. \\
+        R-4 & Noisy False ErrP Rollbacks & Med & Med & Implemented Bayesian cost threshold $t^* = 0.5507$ balancing false rollbacks vs. errors. \\
+        R-5 & Domestic Network Outage & Low & High & System operates 100\% offline from local files (\texttt{file://}) with zero cloud dependencies. \\
+        \bottomrule
+    \end{tabularx}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix 3: SFE-GAT 9-Subject Replication Audit}
+    \framesubtitle{Empirical proof of the replication gap on BCI Competition IV-2a.}
+    \scriptsize
+    \centering
+    \begin{tabularx}{0.85\textwidth}{c c c c c}
+        \toprule
+        \textbf{Subject} & \textbf{Our Accuracy} & \textbf{Our Cohen's $\kappa$} & \textbf{Paper Fig. 3a} & \textbf{Paper $\kappa$} \\
+        \midrule
+        A01 & 34.37\% (99/288) & 0.1250 & 80.21\% & 0.736 \\
+        A02 & 29.51\% (85/288) & 0.0601 & 61.46\% & 0.486 \\
+        A03 & 37.15\% (107/288) & 0.1620 & 89.24\% & 0.856 \\
+        A04 & 38.54\% (111/288) & 0.1805 & 70.49\% & 0.606 \\
+        A05 & 26.38\% (76/288) & 0.0185 & 72.92\% & 0.639 \\
+        A07 & 39.23\% (113/288) & 0.1898 & 86.11\% & 0.815 \\
+        A09 & 51.73\% (149/288) & 0.3564 & 81.94\% & 0.759 \\
+        \midrule
+        \textbf{Mean (9 Subj)} & \textbf{35.68\% (925/2592)} & \textbf{0.1424} & \textbf{77.70\% (2014/2592)} & \textbf{0.7026} \\
+        \bottomrule
+    \end{tabularx}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SilentAssist — FYP-1 Mid-Evaluation Presentation</title>
+<style>
+  :root {
+    --bg: #F6F7F3;
+    --card-bg: #FFFFFF;
+    --text-main: #141C16;
+    --text-muted: #5A645D;
+    --accent-green: #245A38;
+    --accent-dark: #122B1B;
+    --accent-gold: #C28B1E;
+    --accent-red: #A82828;
+    --accent-blue: #1D588F;
+    --border: #E1E5DC;
+    --tag-bg: #EAEFE6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .deck-container {
+    width: 100vw;
+    height: 56.25vw; /* 16:9 aspect ratio */
+    max-height: 100vh;
+    max-width: 177.78vh;
+    position: relative;
+    background: var(--bg);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    padding: 3.5% 4.5% 3% 4.5%;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--bg);
+  }
+
+  .slide.active { display: flex; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .top-bar .tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .top-bar .sub { color: #8C968E; font-weight: 600; }
+
+  /* Headlines */
+  .header-group { margin-top: 1%; margin-bottom: 2%; }
+  .header-group h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .header-group p {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-top: 0.6%;
+    font-weight: 400;
+  }
+
+  /* Grid layouts */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    flex: 1;
+    margin-bottom: 2%;
+  }
+  .card-grid-2 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    flex: 1;
+    margin-bottom: 2%;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .card .card-badge {
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    background: var(--tag-bg);
+    color: var(--accent-green);
+  }
+  .card .card-badge.gold { background: #FEF7E6; color: var(--accent-gold); }
+  .card .card-badge.red { background: #FDECEC; color: var(--accent-red); }
+  .card .card-badge.blue { background: #EAF2FB; color: var(--accent-blue); }
+
+  .card h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+  .card p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+  .card ul {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .card ul li {
+    font-size: 0.92rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .card ul li::before {
+    content: "•";
+    color: var(--accent-green);
+    font-weight: 900;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  /* Stat numbers */
+  .stat-val {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: var(--accent-green);
+    line-height: 1;
+    margin: 12px 0 4px 0;
+  }
+  .stat-val.red { color: var(--accent-red); }
+  .stat-sub { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+
+  /* Highlight Banner */
+  .alert-banner {
+    background: #FEF3F2;
+    border-left: 4px solid var(--accent-red);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--accent-red);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+  }
+  .alert-banner.green {
+    background: #EAF6ED;
+    border-left-color: var(--accent-green);
+    color: var(--accent-green);
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #8C968E;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-top: 1px solid #E6EAE2;
+    padding-top: 12px;
+  }
+  .rubric-tag {
+    color: var(--accent-dark);
+    font-weight: 800;
+  }
+
+  /* Navigation controls */
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+  .controls button {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #CCC;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  .controls button:hover { background: #fff; }
+
+  @media print {
+    body { background: none; }
+    .deck-container { width: 100%; height: 100vh; box-shadow: none; }
+    .slide { display: flex !important; page-break-after: always; position: relative; }
+    .controls { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-container">
+
+  <!-- SLIDE 1: HERO & TITLE -->
+  <div class="slide active">
+    <div class="top-bar">
+      <div class="tag">🧠 FYP-1 · MID-EVALUATION</div>
+      <div class="sub">ASSISTIVE NEUROTECHNOLOGY · CLOSED-LOOP BCI</div>
+    </div>
+    <div class="header-group">
+      <h1>Decode the intent.<br><span style="color:var(--accent-green)">Close the loop.</span></h1>
+      <p>SilentAssist turns noisy motor-imagery EEG into context-aware smart home control with autonomous error rollback.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">THE PROJECT</div>
+        <h3>SilentAssist</h3>
+        <p>A dual-graph assistive ecosystem for locked-in patients (ALS, tetraplegia, SCI).</p>
+        <ul>
+          <li>4-Token Universal MI Navigation</li>
+          <li>CogLign Knowledge Graph (SAREF/BOT)</li>
+          <li>ErrP Autonomous Control Loop</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">THE TEAM</div>
+        <h3>FAST-NUCES Islamabad</h3>
+        <p>Department of Artificial Intelligence & Data Science</p>
+        <ul>
+          <li><strong>Ali Farqaleet</strong> · 22i-0579 (DSP & Neural)</li>
+          <li><strong>Abdul Haseeb</strong> · 23i-2654 (KG & Policy)</li>
+          <li><strong>Issa Sultan</strong> · 23i-2596 (ErrP & Safety UI)</li>
+        </ul>
+        <div style="margin-top:auto; font-size:0.85rem; color:var(--text-muted);">Supervisor: <strong>Dr. Adil Majeed</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">MIDTERM VERIFICATION</div>
+        <h3>Core Deliverables</h3>
+        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+          <div>
+            <div class="stat-val" style="font-size:2.4rem;">6</div>
+            <div class="stat-sub">Modules Built</div>
+          </div>
+          <div>
+            <div class="stat-val" style="font-size:2.4rem;">234</div>
+            <div class="stat-sub">Passing Tests</div>
+          </div>
+          <div>
+            <div class="stat-val" style="font-size:2.4rem;">10<sup>-15</sup></div>
+            <div class="stat-sub">Parity Error</div>
+          </div>
+        </div>
+        <div class="alert-banner green" style="margin-top:14px;">100% OFFLINE ZERO-BUILD RUNTIME</div>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span>SMART ASSISTIVE TECH · RESTORING PHYSICAL AUTONOMY</span>
+      <span class="rubric-tag">FAST-NUCES · FALL 2026</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: PROBLEM AND USERS -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">⚠️ PROBLEM & USERS</div>
+      <div class="sub">ASSISTIVE INTERACTION BOTTLENECKS</div>
+    </div>
+    <div class="header-group">
+      <h1>Patients need autonomy,<br><span style="color:var(--accent-red)">not cognitive exhaustion.</span></h1>
+      <p>Traditional assistive technologies fail catastrophically as motor and ocular fatigue advance.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge red">PHYSICAL LOCK-IN</div>
+        <h3>Severe Paralysis</h3>
+        <p>ALS, tetraplegia, cervical SCI deprive individuals of somatic motor control.</p>
+        <ul>
+          <li>Cognition remains completely intact</li>
+          <li>Total dependency on caregivers for lighting, AC, media</li>
+          <li>Mechanical switches fail as muscles atrophy</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">EXISTING TECH FAILS</div>
+        <h3>Severe Bottlenecks</h3>
+        <p>Commercial assistive tools introduce severe fatigue and failure modes.</p>
+        <ul>
+          <li><strong>Eye-Gaze:</strong> Ocular strain & "Midas Touch" accidental clicks</li>
+          <li><strong>Voice Assistants:</strong> Dysarthria failure & cloud privacy risk</li>
+          <li><strong>Open-Loop BCIs:</strong> Giant vocabularies cause error spirals</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge green">THE SOLUTION</div>
+        <h3>SilentAssist Closed Loop</h3>
+        <p>A low-strain, neuro-symbolic assistive ecosystem.</p>
+        <ul>
+          <li><strong>4 Universal Tokens:</strong> Hierarchical cyclic carousel</li>
+          <li><strong>Contextual Grounding:</strong> In-browser SPARQL reasoning</li>
+          <li><strong>Autonomous Rollback:</strong> Neurophysiological error detection</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">PROBLEM / RESEARCH · 15 MARKS</span>
+      <span>RESTORING DIGNITY AND DOMESTIC INDEPENDENCE</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: RESEARCH GAP & REPLICATION AUDIT -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">🔬 RESEARCH GAP & AUDIT</div>
+      <div class="sub">BASE PAPER REPLICATION & SCIENTIFIC RIGOR</div>
+    </div>
+    <div class="header-group">
+      <h1>Claimed accuracy collapses.<br><span style="color:var(--accent-green)">Our audit explains why.</span></h1>
+      <p>We faithfully replicated SFE-GAT (Gao et al., 2026) on BCI IV-2a and diagnosed 4 fatal architectural flaws.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge gold">PUBLISHED CLAIM</div>
+        <h3>Gao et al. 2026</h3>
+        <div class="stat-val">77.7%</div>
+        <div class="stat-sub">Reported BCI IV-2a Accuracy</div>
+        <p style="margin-top:12px;">Claimed that dynamic graph attention (GATv2 + GAE) solves 4-class motor imagery decoding.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge red">OUR REPLICATION</div>
+        <h3>Empirical Baseline</h3>
+        <div class="stat-val red">35.7%</div>
+        <div class="stat-sub">Audited Replication (9 Subjects)</div>
+        <p style="margin-top:12px;">Strict subject-dependent evaluation on session-E with zero data leakage; training reached 99% (overfitting).</p>
+      </div>
+      <div class="card">
+        <div class="card-badge">THE 4 AUDITED CAUSES</div>
+        <h3>Root-Cause Analysis</h3>
+        <ul>
+          <li><strong>GAE Gradient Starvation:</strong> Pure CE loss leaves GAE frozen at initialization (100% edges kept).</li>
+          <li><strong>Unnormalized PSDs:</strong> Raw $\mu V^2$ powers exceed 170, destabilizing attention weights.</li>
+          <li><strong>Inter-Session Power Drift:</strong> $2.8\times$ power surge on A02 breaks test inference.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="alert-banner green">SCIENTIFIC INTEGRITY: We report authentic experimental numbers rather than hiding behind synthetic claims.</div>
+    <div class="bottom-bar" style="margin-top:10px;">
+      <span class="rubric-tag">PROBLEM / RESEARCH · 15 MARKS</span>
+      <span>RIGOR-FIRST RESEARCH METHODOLOGY</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: REQUIREMENTS & VALIDATION -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📋 REQUIREMENTS & CRITERIA</div>
+      <div class="sub">VERIFIABLE SPECIFICATION (FORM 3 CRITERION 4)</div>
+    </div>
+    <div class="header-group">
+      <h1>We verified the system<br><span style="color:var(--accent-green)">before claiming progress.</span></h1>
+      <p>Every functional requirement maps directly to automated unit, parity, or in-page selftests.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">14 FUNCTIONAL REQS</div>
+        <h3>System Behavior</h3>
+        <ul>
+          <li><strong>FR-01:</strong> 4-Token Motor Imagery input mapping</li>
+          <li><strong>FR-03:</strong> SFE-GAT real-time forward pass</li>
+          <li><strong>FR-05:</strong> In-browser SPARQL intent resolution</li>
+          <li><strong>FR-07:</strong> AC Thermal Hazard intercept (<18°C)</li>
+          <li><strong>FR-09:</strong> ErrP atomic state rollback</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">7 NON-FUNCTIONAL REQS</div>
+        <h3>Quality Constraints</h3>
+        <ul>
+          <li><strong>NFR-01:</strong> Inference latency &lt; 100 ms per trial</li>
+          <li><strong>NFR-02:</strong> 100% Offline execution (`file://`)</li>
+          <li><strong>NFR-03:</strong> SHA-256 tamper-evident audit ledger</li>
+          <li><strong>NFR-05:</strong> WCAG AAA high-contrast focus cards</li>
+          <li><strong>NFR-07:</strong> PyTorch-JS mathematical parity</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge green">TEST TRACEABILITY</div>
+        <h3>234 Automated Tests</h3>
+        <div class="stat-val">100%</div>
+        <div class="stat-sub">Pass Rate on GitHub Actions</div>
+        <p style="margin-top:12px;">76 Browser Selftests · 54 Node.js Tests · 104 Pytest Tests across 5 continuous integration gates.</p>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">REQUIREMENTS & SPECIFICATION · 15 MARKS</span>
+      <span>FULL TRACEABILITY MATRIX ESTABLISHED</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: SYSTEM ARCHITECTURE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">🏗️ ARCHITECTURE & DESIGN</div>
+      <div class="sub">5-TIER DUAL-GRAPH CLOSED LOOP</div>
+    </div>
+    <div class="header-group">
+      <h1>One pipeline unites<br><span style="color:var(--accent-green)">continuous and symbolic graphs.</span></h1>
+      <p>Decoupled event-driven architecture connecting neural decoding with smart-home ontologies.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">TIER 1 & 2: DECODE</div>
+        <h3>Brain Graph DSP</h3>
+        <p>Continuous 22-ch EEG signal processing</p>
+        <ul>
+          <li>Hilbert Phase Locking Value (PLV)</li>
+          <li>8-Band Welch PSD Node Features</li>
+          <li>SFE-GAT Graph Evolution Forward Pass</li>
+          <li>Shrinkage LDA ErrP Classifier</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">TIER 3: REASON</div>
+        <h3>CogLign Knowledge Graph</h3>
+        <p>Discrete symbolic smart-home topology</p>
+        <ul>
+          <li>ETSI SAREF v4.1.1 + W3C BOT RDF triples</li>
+          <li>In-browser SPARQL 1.1 query engine</li>
+          <li>Multi-attribute candidate scoring $S(d)$</li>
+          <li>Sub-5ms deterministic query resolution</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">TIER 4 & 5: GOVERN</div>
+        <h3>Policy Engine & UI</h3>
+        <p>Safety boundaries & presentation</p>
+        <ul>
+          <li>Composite confidence $c = n \times s$</li>
+          <li>Thermal Hazard Intercept (<18°C)</li>
+          <li>Caregiver Dashboard & Audit Ledger</li>
+          <li>Atomic Rollback upon ErrP Detection</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">SYSTEM DESIGN · 15 MARKS</span>
+      <span>SA.bus (EVENT BUS) ⇄ SA.store (CENTRAL IMMUTABLE STATE)</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: DECISION POLICY & ERRP ROLLBACK -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">🛡️ SAFETY & ERROR CORRECTION</div>
+      <div class="sub">COST-THEORETIC AUTONOMOUS ROLLBACK</div>
+    </div>
+    <div class="header-group">
+      <h1>The system protects the patient<br><span style="color:var(--accent-green)">and corrects itself.</span></h1>
+      <p>Risk-governed 4-tier policy combined with Bayesian ErrP error potential monitoring.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge green">CONFIDENCE TIERS</div>
+        <h3>Policy Engine</h3>
+        <ul>
+          <li><strong>EXECUTE ($c \ge 0.75$):</strong> Immediate actuation + voice announcement</li>
+          <li><strong>CONFIRM ($0.50 \le c < 0.75$):</strong> Single-token prompt to verify intent</li>
+          <li><strong>REJECT ($c < 0.50$):</strong> Silent drop, avoids unwanted actuation</li>
+          <li><strong>CAREGIVER:</strong> Thermal setpoints &lt;18°C require nurse sign-off</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge red">ERRP ROLLBACK</div>
+        <h3>Error Potentials</h3>
+        <p>Monitors frontocentral electrodes ($\mathrm{FCz}$/$\mathrm{Cz}$) for 650 ms post-action.</p>
+        <ul>
+          <li>Shrinkage LDA on 72 windowed features</li>
+          <li>Platt scaling for calibrated posterior $q$</li>
+          <li>Saerens prior adjustment for baseline shift</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">DECISION THRESHOLD</div>
+        <h3>Bayesian Cost $t^*$</h3>
+        <div class="stat-val" style="font-size:2.6rem;">t* = 0.55</div>
+        <p style="margin-top:6px; font-size:0.88rem;">Derived from asymmetric false-positive vs. false-negative cognitive costs:</p>
+        <p style="font-size:0.85rem; font-weight:700; margin-top:4px; color:var(--text-main);">$t^* = \frac{C_{\mathrm{FP}}}{C_{\mathrm{FP}} + C_{\mathrm{FN}} - C_{\mathrm{TP}}} = \frac{5}{5+7-2.92} = 0.5507$</p>
+      </div>
+    </div>
+    <div class="alert-banner green">ATOMIC RESTORATION: Reverts appliance state & penalizes rejected entity in Knowledge Graph.</div>
+    <div class="bottom-bar" style="margin-top:10px;">
+      <span class="rubric-tag">PROCESS & BEHAVIOR · 10 MARKS</span>
+      <span>CLOSED-LOOP NEURO-SYMBOLIC RESILIENCE</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: LIVE DEMO PART 1 -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">💻 LIVE DEMONSTRATION · PART 1</div>
+      <div class="sub">OFFLINE ACCESSIBLE WEB PROTOTYPE</div>
+    </div>
+    <div class="header-group">
+      <h1>Universal navigation<br><span style="color:var(--accent-green)">without cognitive fatigue.</span></h1>
+      <p>High-contrast, zero-build assistive web client running 100% offline from local browser storage.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">4-TOKEN NAVIGATION</div>
+        <h3>Universal Primitives</h3>
+        <ul>
+          <li><strong>Right Arrow (Right Hand):</strong> Next card</li>
+          <li><strong>Left Arrow (Left Hand):</strong> Previous card</li>
+          <li><strong>Down Arrow (Both Feet):</strong> Select / Enter</li>
+          <li><strong>Up Arrow (Tongue):</strong> Back / Exit</li>
+        </ul>
+        <p style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">Eliminates cognitive strain of high-order motor-imagery matrices.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">ACCESSIBLE UX</div>
+        <h3>Clinical-Calm UI</h3>
+        <ul>
+          <li><strong>WCAG 2.2 AAA Contrast:</strong> Contrast ratio $> 7:1$</li>
+          <li><strong>Zero Ocular Glare:</strong> Dark theme prevents eye strain</li>
+          <li><strong>Web Speech API:</strong> Spoken auditory confirmations</li>
+          <li><strong>Zero-Build:</strong> Runs natively from `file://` URL</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge green">SEMANTIC REASONING</div>
+        <h3>In-Browser SPARQL</h3>
+        <ul>
+          <li>Loads 515 RDFS-asserted triples in memory</li>
+          <li>Resolves room context in &lt; 5 ms</li>
+          <li>Matches intended device (Score = 0.94)</li>
+          <li>No remote cloud server round-trip required</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">LIVE PROTOTYPE DEMO · 25 MARKS</span>
+      <span>DEMONSTRABLE FROM LOCAL BROWSER IN SECONDS</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: LIVE DEMO PART 2 -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">💻 LIVE DEMONSTRATION · PART 2</div>
+      <div class="sub">AUTONOMOUS ROLLBACK & CAREGIVER HUB</div>
+    </div>
+    <div class="header-group">
+      <h1>Edge and failure cases<br><span style="color:var(--accent-red)">handled in real time.</span></h1>
+      <p>Proving autonomous ErrP rollback, thermal safety traps, and cryptographic auditing.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge red">FAILURE CASE DEMO</div>
+        <h3>ErrP Rollback (Key 'E')</h3>
+        <p>1. User selects Bedroom Ceiling Light.</p>
+        <p>2. Simulated misclassification triggers ErrP.</p>
+        <p>3. Posterior $q = 0.78 > t^* = 0.5507$.</p>
+        <p style="font-weight:700; color:var(--accent-green); margin-top:8px;">Outcome: State reverts to OFF; Bedside Lamp offered as retry!</p>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">SAFETY TRAP DEMO</div>
+        <h3>Thermal Intercept (<18°C)</h3>
+        <p>1. Patient navigates to AC controls.</p>
+        <p>2. Selects dangerous 16°C setpoint.</p>
+        <p>3. Policy Engine traps thermal hazard.</p>
+        <p style="font-weight:700; color:var(--accent-gold); margin-top:8px;">Outcome: Actuation blocked; routed to Caregiver Approval Queue!</p>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">SUPERVISION DEMO</div>
+        <h3>Caregiver Hub (Key 'C')</h3>
+        <p>1. Live Appliance Shadow Table.</p>
+        <p>2. Caregiver reviews & approves pending requests.</p>
+        <p>3. SHA-256 Hash-Chained Audit Ledger.</p>
+        <p style="font-weight:700; color:var(--accent-blue); margin-top:8px;">Outcome: Immediate visual tamper alert upon byte tampering!</p>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">LIVE PROTOTYPE DEMO · 25 MARKS</span>
+      <span>REAL WORKING MODULES WITH FAILURE CASES SHOWN</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: TESTING & MATHEMATICAL PARITY -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">🧪 TESTING & PARITY GATE</div>
+      <div class="sub">CONTINUOUS INTEGRATION (FORM 2 CRITERION 7)</div>
+    </div>
+    <div class="header-group">
+      <h1>Mathematical parity to <span style="color:var(--accent-green)">10<sup>-15</sup></span>.<br>Zero broken gates.</h1>
+      <p>Automated GitHub Actions CI/CD workflow proves mathematical equivalence on every commit.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">5 CI/CD GATES</div>
+        <h3>Automated Pipeline</h3>
+        <ul>
+          <li><strong>Gate 1:</strong> Syntax & Lint (81 JS files checked)</li>
+          <li><strong>Gate 2:</strong> 54 Node.js Unit & SPARQL Tests</li>
+          <li><strong>Gate 3:</strong> 104 Pytest Tests & Parity Gate</li>
+          <li><strong>Gate 4:</strong> 76 Headless Edge Browser Tests</li>
+          <li><strong>Gate 5:</strong> Offline Bundle Packaging</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge green">TENSOR PARITY</div>
+        <h3>PyTorch ⇄ JS Logits</h3>
+        <div class="stat-val" style="font-size:2.6rem;">&le; 10<sup>-15</sup></div>
+        <div class="stat-sub">Max Absolute Error Across Replay Trials</div>
+        <p style="margin-top:12px;">Guarantees that the browser client executes the exact mathematically validated weights trained in PyTorch.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">ERRP VALIDATION</div>
+        <h3>BNCI 013-2015 Benchmark</h3>
+        <div class="stat-val" style="font-size:2.6rem;">0.710</div>
+        <div class="stat-sub">Cross-Session Balanced Accuracy (AUC 0.780)</div>
+        <p style="margin-top:12px;">Exceeds our pre-registered gate ($\ge 0.645$); deployed subject S01 achieves <strong>0.823 BA</strong>.</p>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">TESTING & EARLY VALIDATION · 10 MARKS</span>
+      <span>ALL 5 GITHUB ACTIONS GATES PASSING GREEN</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: TEAM OWNERSHIP & DISCLOSURE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">👥 TEAM OWNERSHIP & DISCLOSURE</div>
+      <div class="sub">FORM 11 ALIGNMENT & TOOL USE DISCLOSURE</div>
+    </div>
+    <div class="header-group">
+      <h1>The work is shared.<br><span style="color:var(--accent-green)">Responsibility is explicit.</span></h1>
+      <p>Individual module ownership, git commit evidence, and ethical AI assistance transparently documented.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">DSP & DECODING</div>
+        <h3>Ali Farqaleet</h3>
+        <p>Roll No: <strong>22i-0579</strong></p>
+        <ul>
+          <li>Module M1: Neural DSP & SFE-GAT</li>
+          <li>Hilbert PLV & Welch PSD extraction</li>
+          <li>9-subject replication & audit</li>
+          <li>PyTorch-to-JS weight parity exporter</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">KG & GOVERNANCE</div>
+        <h3>Abdul Haseeb</h3>
+        <p>Roll No: <strong>23i-2654</strong></p>
+        <ul>
+          <li>Module M3: CogLign Knowledge Graph</li>
+          <li>ETSI SAREF + W3C BOT triplestore</li>
+          <li>In-browser SPARQL 1.1 query engine</li>
+          <li>Module M4: 4-tier policy governance</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">ERRP & UI/CI</div>
+        <h3>Issa Sultan</h3>
+        <p>Roll No: <strong>23i-2596</strong></p>
+        <ul>
+          <li>Module M2: ErrP shrinkage-LDA pipeline</li>
+          <li>Platt calibration & Bayesian $t^*$ boundary</li>
+          <li>Module M5/M6: 6-Screen UI & Caregiver Hub</li>
+          <li>SHA-256 audit ledger & GitHub CI/CD</li>
+        </ul>
+      </div>
+    </div>
+    <div class="alert-banner green">RESPONSIBLE AI DISCLOSURE: Antigravity AI used strictly for LaTeX/diagram formatting; 100% of code, equations & tests verified by student authors.</div>
+    <div class="bottom-bar" style="margin-top:10px;">
+      <span class="rubric-tag">TEAM & TOOL OWNERSHIP · 10 MARKS</span>
+      <span>COLLABORATIVE VERSION CONTROL REPOSITORY</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: REMAINING ROADMAP -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">🚀 ROADMAP & RECOVERY</div>
+      <div class="sub">ITERATION 2 (FINAL) & FYP-2 EXTENSIONS</div>
+    </div>
+    <div class="header-group">
+      <h1>The foundation works.<br><span style="color:var(--accent-green)">Generalization comes next.</span></h1>
+      <p>Iteration 2 addresses the audited GNN failure modes for subject-independent deployment.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">NORMALIZE</div>
+        <h3>Feature Engineering</h3>
+        <p>Iteration 2 (FYP-1 Final)</p>
+        <ul>
+          <li>$\log_{10}$ PSD power transform</li>
+          <li>Input batch normalization in network stem</li>
+          <li>Stabilizes GATv2 attention heads</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">EVOLVE</div>
+        <h3>GAE Link Loss</h3>
+        <p>Iteration 2 (FYP-1 Final)</p>
+        <ul>
+          <li>Auxiliary edge-reconstruction loss ($\lambda_{\mathrm{recon}} > 0$)</li>
+          <li>Unfreezes GAE encoder gradients</li>
+          <li>Enables genuine dynamic graph pruning</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge gold">DEPLOY</div>
+        <h3>Hardware & LOSO</h3>
+        <p>Iteration 3 & 4 (FYP-2)</p>
+        <ul>
+          <li>9-fold Leave-One-Subject-Out benchmark</li>
+          <li>Physical MQTT smart relay integration</li>
+          <li>Live OpenBCI Cyton streaming via LSL</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span class="rubric-tag">ITERATION PLAN & RECOVERY · 10 MARKS</span>
+      <span>ON TRACK FOR FYP-1 FINAL AND CLINICAL DEPLOYMENT</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: APPENDIX · ARCHITECTURE DECISIONS -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📑 APPENDIX 1</div>
+      <div class="sub">ARCHITECTURE DECISIONS REGISTER</div>
+    </div>
+    <div class="header-group">
+      <h1>Every design choice<br><span style="color:var(--accent-green)">has an engineering reason.</span></h1>
+      <p>Key architectural trade-offs linking constraints to verified implementation.</p>
+    </div>
+    <div class="card" style="flex:1; margin-bottom:2%;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.88rem; text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid #E1E5DC; color:var(--accent-green);">
+            <th style="padding:8px;">ID</th><th>Decision</th><th>Alternatives</th><th>Engineering Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>AD-1</strong></td><td>4-Token Navigation Primitives</td><td>Dozens of per-device MI tokens</td><td>Motor cortex cannot separate 20+ classes; 4 tokens eliminate cognitive collapse.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>AD-2</strong></td><td>Client-Side In-Browser Execution</td><td>Python Flask / FastAPI backend</td><td>Eliminates network latency, server downtime, and guarantees 100% offline patient privacy.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>AD-3</strong></td><td>In-Memory SPARQL Engine</td><td>Remote GraphDB / Virtuoso</td><td>Eliminates heavy external server dependencies; executes semantic queries in &lt; 5 ms.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>AD-4</strong></td><td>Shrinkage LDA + Platt Calibration</td><td>Deep EEGNet for ErrP</td><td>Small sample sizes per subject; shrinkage prevents covariance singularity and trains instantly.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>AD-5</strong></td><td>Bayesian Cost Boundary ($t^* = 0.55$)</td><td>Fixed 0.5 probability split</td><td>Asymmetric costs: false rollback irritates user, but uncorrected error forces exhausting recovery.</td></tr>
+          <tr><td><strong>AD-7</strong></td><td>SHA-256 Hash-Chained Ledger</td><td>Standard SQL table</td><td>Ensures cryptographic tamper-evidence for medical and legal incident auditing in healthcare.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bottom-bar">
+      <span>SUPPLEMENTARY PANEL DEFENSE EVIDENCE</span>
+      <span>FORM 10 ALIGNMENT</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: APPENDIX · RISK REGISTER -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📑 APPENDIX 2</div>
+      <div class="sub">PROJECT RISK REGISTER</div>
+    </div>
+    <div class="header-group">
+      <h1>Risks are documented,<br><span style="color:var(--accent-green)">not hidden.</span></h1>
+      <p>Every identified failure mode carries a concrete mitigation and verification test.</p>
+    </div>
+    <div class="card" style="flex:1; margin-bottom:2%;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.9rem; text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid #E1E5DC; color:var(--accent-green);">
+            <th style="padding:8px;">ID</th><th>Risk Description</th><th>Likelihood</th><th>Impact</th><th>Implemented Engineering Mitigation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>R-1</strong></td><td>SFE-GAT Replication Gap</td><td>High</td><td>Med</td><td>Audited 4 root causes; planned feature normalization and GAE reconstruction loss for Iteration 2.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>R-2</strong></td><td>High Latency Semantic Queries</td><td>Med</td><td>Med</td><td>Engineered custom in-memory triplestore; queries resolve in &lt; 5 ms locally.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>R-3</strong></td><td>Domestic Thermal Hazards</td><td>Low</td><td>High</td><td>Policy Engine intercepts AC setpoints &lt; 18°C; requires caregiver authorization.</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>R-4</strong></td><td>Noisy False ErrP Rollbacks</td><td>Med</td><td>Med</td><td>Derived Bayesian cost threshold $t^* = 0.5507$ balancing false rollbacks vs. uncorrected errors.</td></tr>
+          <tr><td><strong>R-5</strong></td><td>Domestic Network Outage</td><td>Low</td><td>High</td><td>System operates 100% offline from local files (`file://`) with zero cloud dependencies.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bottom-bar">
+      <span>SUPPLEMENTARY PANEL DEFENSE EVIDENCE</span>
+      <span>RISK MANAGEMENT & MITIGATION</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: APPENDIX · REQUIREMENTS TRACEABILITY -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📑 APPENDIX 3</div>
+      <div class="sub">REQUIREMENTS TRACEABILITY MATRIX</div>
+    </div>
+    <div class="header-group">
+      <h1>Every requirement needs<br><span style="color:var(--accent-green)">verifiable evidence.</span></h1>
+      <p>Complete traceability connecting requirements to source files and automated test suites.</p>
+    </div>
+    <div class="card" style="flex:1; margin-bottom:2%; overflow-y:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid #E1E5DC; color:var(--accent-green);">
+            <th style="padding:6px;">Req ID</th><th>Module</th><th>Requirement Statement</th><th>Implementation File</th><th>Verification Test</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-01</strong></td><td>Neural Input</td><td>4 universal MI tokens to navigation primitives</td><td><code>POC/app/bus.js</code></td><td>SELFTEST-01, SELFTEST-02</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-02</strong></td><td>Signal DSP</td><td>22-channel PLV and 8-band Welch PSD</td><td><code>research/export/reference.py</code></td><td>pytest: test_weights_manifest</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-03</strong></td><td>SFE-GAT Decoder</td><td>GATv2/GAE forward pass inference</td><td><code>research/models/sfegat.py</code></td><td>export/parity.test.js</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-05</strong></td><td>SPARQL Resolver</td><td>In-browser SPARQL candidate scoring</td><td><code>POC/app/sparql.js</code></td><td>research/kg/sparql.test.js</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-07</strong></td><td>Thermal Trap</td><td>Trap AC setpoints &lt; 18°C as high-risk</td><td><code>POC/app/policy.js</code></td><td>SELFTEST-22</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-08</strong></td><td>ErrP Monitor</td><td>650 ms post-action temporal window features</td><td><code>research/errp/pipeline.py</code></td><td>pytest: test_errp_pipeline</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td><strong>FR-09</strong></td><td>Atomic Rollback</td><td>State revert upon ErrP posterior $q > t^*$</td><td><code>POC/app/policy.js</code></td><td>SELFTEST-18</td></tr>
+          <tr><td><strong>FR-12</strong></td><td>Audit Chaining</td><td>SHA-256 hash-chained tamper-evident log</td><td><code>POC/app/audit.js</code></td><td>SELFTEST-42</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bottom-bar">
+      <span>SUPPLEMENTARY PANEL DEFENSE EVIDENCE</span>
+      <span>14 FUNCTIONAL REQUIREMENTS AUDITED</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: APPENDIX · ETHICS & LICENSING -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📑 APPENDIX 4</div>
+      <div class="sub">NEUROETHICS, PRIVACY & LICENSING</div>
+    </div>
+    <div class="header-group">
+      <h1>Responsible research needs<br><span style="color:var(--accent-green)">clear boundaries.</span></h1>
+      <p>Data privacy, open academic licensing, and human caregiver oversight remain explicit.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-badge">OPEN BENCHMARKS</div>
+        <h3>Dataset Provenance</h3>
+        <ul>
+          <li><strong>BCI IV-2a:</strong> Graz University of Technology (CC-BY-NC)</li>
+          <li><strong>BNCI 013-2015:</strong> Horizon 2020 ErrP Benchmark (CC-BY)</li>
+          <li>Fully de-identified public clinical data</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge green">PATIENT PRIVACY</div>
+        <h3>Zero Cloud Telemetry</h3>
+        <ul>
+          <li>All neural processing executed locally in browser</li>
+          <li>No audio or telemetry leaves patient tablet</li>
+          <li>Operates completely disconnected from internet</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-badge blue">FAIL-SAFE DESIGN</div>
+        <h3>Caregiver Sovereignty</h3>
+        <ul>
+          <li>High-risk thermal actions require human sign-off</li>
+          <li>Cryptographic audit ledger prevents retrospective denial</li>
+          <li>Fail-safe defaults on signal loss</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span>SUPPLEMENTARY PANEL DEFENSE EVIDENCE</span>
+      <span>ETHICAL NEUROTECHNOLOGY COMPLIANCE</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 16: APPENDIX · REPLICATION BREAKDOWN TABLE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="tag">📑 APPENDIX 5</div>
+      <div class="sub">SFE-GAT REPLICATION BREAKDOWN</div>
+    </div>
+    <div class="header-group">
+      <h1>Subject-by-subject audit<br><span style="color:var(--accent-green)">across all 9 BCI IV-2a subjects.</span></h1>
+      <p>Empirical proof of the replication gap floored at $k/288$ held-out session-E trials.</p>
+    </div>
+    <div class="card" style="flex:1; margin-bottom:2%;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.86rem; text-align:center;">
+        <thead>
+          <tr style="border-bottom:2px solid #E1E5DC; color:var(--accent-green);">
+            <th style="padding:6px; text-align:left;">Subject</th><th>Our Accuracy</th><th>Our Cohen's $\kappa$</th><th>Paper Claimed</th><th>Paper $\kappa$</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A01</strong></td><td>34.37% (99/288)</td><td>0.1250</td><td>80.21%</td><td>0.736</td><td>Replicated & Audited</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A02</strong></td><td>29.51% (85/288)</td><td>0.0601</td><td>61.46%</td><td>0.486</td><td>Replicated ($2.8\times$ power shift)</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A03</strong></td><td>37.15% (107/288)</td><td>0.1620</td><td>89.24%</td><td>0.856</td><td>Replicated & Audited</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A04</strong></td><td>38.54% (111/288)</td><td>0.1805</td><td>70.49%</td><td>0.606</td><td>Replicated & Audited</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A05</strong></td><td>26.38% (76/288)</td><td>0.0185</td><td>72.92%</td><td>0.639</td><td>Replicated & Audited</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A07</strong></td><td>39.23% (113/288)</td><td>0.1898</td><td>86.11%</td><td>0.815</td><td>Replicated & Audited</td></tr>
+          <tr style="border-bottom:1px solid #EEE;"><td style="text-align:left;"><strong>A09</strong></td><td>51.73% (149/288)</td><td>0.3564</td><td>81.94%</td><td>0.759</td><td>Strongest Replicated Subject</td></tr>
+          <tr style="font-weight:800; background:#F0F4ED;"><td style="text-align:left; padding:8px;"><strong>Mean (9 Subj)</strong></td><td><strong>35.68% (925/2592)</strong></td><td><strong>0.1424</strong></td><td><strong>77.70% (2014/2592)</strong></td><td><strong>0.7026</strong></td><td><strong>Empirical Baseline Established</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bottom-bar">
+      <span>SUPPLEMENTARY PANEL DEFENSE EVIDENCE</span>
+      <span>2,592 HELD-OUT EVALUATION TRIALS AUDITED</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Presentation Controls -->
+<div class="controls">
+  <button id="prevBtn">◀ Prev</button>
+  <span id="slideIndicator" style="display:flex; align-items:center; background:#fff; padding:6px 12px; border-radius:8px; font-size:0.85rem; font-weight:700;">1 / 16</span>
+  <button id="nextBtn">Next ▶</button>
+  <button id="fullscreenBtn">⛶ Fullscreen</button>
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const slideIndicator = document.getElementById('slideIndicator');
+
+  function showSlide(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    slideIndicator.textContent = `${index + 1} / ${totalSlides}`;
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+      showSlide(currentSlide);
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      showSlide(currentSlide);
+    }
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', nextSlide);
+  document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  });
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+</script>
+
+</body>
+</html>
